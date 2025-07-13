@@ -2,6 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Items;
+use App\Entity\Memo;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -27,7 +29,13 @@ class DashboardController extends AbstractDashboardController
     {
 
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Usuarios', 'fas fa-list', User::class);
+
+        yield MenuItem::subMenu(label: 'Memos')->setSubItems([
+        //  MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
+        //  MenuItem::linkToCrud('Items', 'fas fa-list', Items::class),
+        ]);
+        
+        yield MenuItem::linkToCrud('Usuarios','fa-solid fa-users', User::class);
     }
     
 }

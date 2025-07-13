@@ -2,15 +2,21 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+   
+    // Usa el trait
+    use TimestampableEntity;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -35,6 +41,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string|null The plain password (not persisted)
      */
     private ?string $plainPassword = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $nombre = null;
+
+    #[ORM\Column(type: Types::BIGINT)]
+    private ?string $nombreUsuario = null;
+
+    #[ORM\Column(length: 350, nullable: true)]
+    private ?string $direccion = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $telefono = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $nombreContactoInterno = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTime $fechaDuplicado = null;
     
     public function getId(): ?int
     {
@@ -114,6 +138,78 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPlainPassword(?string $plainPassword): self
     {
         $this->plainPassword = $plainPassword;
+        return $this;
+    }
+
+    public function getNombre(): ?string
+    {
+        return $this->nombre;
+    }
+
+    public function setNombre(string $nombre): static
+    {
+        $this->nombre = $nombre;
+
+        return $this;
+    }
+
+    public function getNombreUsuario(): ?string
+    {
+        return $this->nombreUsuario;
+    }
+
+    public function setNombreUsuario(string $nombreUsuario): static
+    {
+        $this->nombreUsuario = $nombreUsuario;
+
+        return $this;
+    }
+
+    public function getDireccion(): ?string
+    {
+        return $this->direccion;
+    }
+
+    public function setDireccion(?string $direccion): static
+    {
+        $this->direccion = $direccion;
+
+        return $this;
+    }
+
+    public function getTelefono(): ?string
+    {
+        return $this->telefono;
+    }
+
+    public function setTelefono(?string $telefono): static
+    {
+        $this->telefono = $telefono;
+
+        return $this;
+    }
+
+    public function getNombreContactoInterno(): ?string
+    {
+        return $this->nombreContactoInterno;
+    }
+
+    public function setNombreContactoInterno(string $nombreContactoInterno): static
+    {
+        $this->nombreContactoInterno = $nombreContactoInterno;
+
+        return $this;
+    }
+
+    public function getFechaDuplicado(): ?\DateTime
+    {
+        return $this->fechaDuplicado;
+    }
+
+    public function setFechaDuplicado(?\DateTime $fechaDuplicado): static
+    {
+        $this->fechaDuplicado = $fechaDuplicado;
+
         return $this;
     }
 
