@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -59,6 +61,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $fechaDuplicado = null;
+
+    #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Memo::class)]
+    private Collection $memos;
+    
+    public function __construct()
+    {
+        $this->memos = new ArrayCollection();
+    }
     
     public function getId(): ?int
     {
@@ -210,6 +220,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->fechaDuplicado = $fechaDuplicado;
 
+        return $this;
+    }
+
+     /**
+     * @return Collection<int, Memo>
+     */
+    public function getMemos(): Collection
+    {
+        return $this->memos;
+    }
+
+    public function addMemo(Memo $memo): static
+    {
+        if (!$this->memos->contains($memo)) {
+            $this->memos->add($memo);
+            $memo->setUsuario($this);
+        }
+        return $this;
+    }
+
+    public function removeMemo(Memo $memo): static
+    {
+        if ($this->memos->removeElement($memo)) {
+            // Limpia la relación solo si es necesario
+            if ($memo->getUsuario() === $this) {
+                $memo->setUsuario(null);
+            }
+        }
         return $this;
     }
 
