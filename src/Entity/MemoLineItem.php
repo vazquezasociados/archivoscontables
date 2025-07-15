@@ -28,10 +28,10 @@ class MemoLineItem
     #[ORM\JoinColumn(nullable: false)]
     private ?Item $item = null;
 
-        public function __construct()
-    {
-        $this->periodo = new \DateTime();  // Valor por defecto
-    }
+    //     public function __construct()
+    // {
+    //     $this->periodo = new \DateTime();  // Valor por defecto
+    // }
     public function getId(): ?int
     {
         return $this->id;
@@ -88,8 +88,13 @@ class MemoLineItem
     /**
      * Formatea el período para visualización
      */
-    public function getPeriodoFormateado(): string
+    // public function getPeriodoFormateado(): string
+    // {
+    //     return $this->periodo->format('d/m/Y');
+    // }
+    
+    public function __toString(): string
     {
-        return $this->periodo->format('d/m/Y');
+        return $this->descripcionAdicional ?: 'Sin descripción adicional';
     }
 }

@@ -1,0 +1,54 @@
+:root {
+  --sidebar-bg: #ced8e0;
+  --sidebar-active: #34495e;
+  --sidebar-accent: #3498db;
+  --text-active: #ffffff; /* Nuevo: Color blanco para texto activo */
+
+}
+
+.sidebar {
+  background-color: var(--sidebar-bg) !important;
+}
+
+/* Ítem activo - texto e icono en blanco */
+.sidebar .menu-item.active > a,
+.sidebar .menu-item.active > a i {
+  color: var(--text-active) !important;
+}
+
+/* Estilo base del ítem activo */
+.sidebar .menu-item.active {
+  background-color: var(--sidebar-active) !important;
+  border-left: 4px solid var(--sidebar-accent) !important;
+}
+
+/* Hover también en blanco (opcional) */
+.sidebar .menu-item.active > a:hover,
+.sidebar .menu-item.active > a:hover i {
+  color: var(--text-active) !important;
+  opacity: 0.9;
+}
+
+/* Estilo definitivo para headers de tabla en EasyAdmin */
+table.table thead th {
+    background-color: #34495e !important;  
+    color: white !important;               /* Texto blanco */
+    border-color: #34495e !important;      /* Borde consistente */
+}
+
+/* Garantiza texto blanco en todos estados */
+table.table thead th,
+table.table thead th a,
+table.table thead th:hover,
+table.table thead th:hover a,
+table.table thead th:active,
+table.table thead th:active a {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Iconos en headers (si existen) */
+table.table thead th i {
+    color: white !important;
+    filter: brightness(0) invert(1); /* Convierte íconos a blanco */
+}

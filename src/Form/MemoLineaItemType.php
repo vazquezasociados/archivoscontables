@@ -18,14 +18,18 @@ class MemoLineaItemType extends AbstractType
     {
         $builder
             ->add('descripcionAdicional')
-              ->add('periodo', DateType::class, [
+            ->add('periodo', DateType::class, [
                 'widget' => 'single_text',
-                'format' => 'yyyy-MM', // HTML5 month picker
-                'html5' => false, // si querés usar un picker JS más adelante
-                'label' => 'Periodo (Mes y Año)',
+                'format' => 'MM/yyyy',
+                'html5' => false,
+                'label' => 'Periodo',
+                'help' => 'Ingrese el mes y año en formato MM/AAAA (ej: 02/2023)',
+                'help_attr' => [
+                    'class' => 'text-muted small' // Clases CSS opcionales
+                ],
                 'attr' => [
-                    'placeholder' => 'YYYY-MM',
-                    'class' => 'month-picker' // útil si querés usar un JS custom
+                    'placeholder' => 'MM/AAAA',
+                    'class' => 'date-picker'
                 ],
             ])
             ->add('item', EntityType::class, [

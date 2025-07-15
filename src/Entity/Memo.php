@@ -32,6 +32,7 @@ class Memo
     public function __construct()
     {
         $this->lineItems = new ArrayCollection();
+        $this->estado = 'Retira el cliente'; // Valor por defecto
     }
 
     public function getId(): ?int

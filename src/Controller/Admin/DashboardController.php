@@ -27,10 +27,10 @@ class DashboardController extends AbstractDashboardController
             ->setTitle('Application');
     }
     
-    // public function configureAssets(): Assets
-    // {
-    //     return Assets::new()->addWebpackEncoreEntry('admin');
-    // }
+    public function configureAssets(): Assets
+    {
+        return Assets::new()->addWebpackEncoreEntry('admin');
+    }
 
     public function configureMenuItems(): iterable
     {
