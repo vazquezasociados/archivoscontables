@@ -11,13 +11,27 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class MemoLineaItemType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('descripcionAdicional')
+            ->add('item', EntityType::class, [
+                'class' => Item::class,
+                'choice_label' => 'descripcion', // usa __toString(), pero es más explícito
+                'placeholder' => 'Seleccione un ítem',
+            ])
+            ->add('descripcionAdicional', TextareaType::class, [
+                'label' => 'Observaciones',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                    'placeholder' => 'Ingrese detalles adicionales'
+                ]
+            ])
             ->add('periodo', DateType::class, [
                 'widget' => 'single_text',
                 'format' => 'MM/yyyy',
@@ -31,12 +45,8 @@ class MemoLineaItemType extends AbstractType
                     'placeholder' => 'MM/AAAA',
                     'class' => 'date-picker'
                 ],
-            ])
-            ->add('item', EntityType::class, [
-                'class' => Item::class,
-                'choice_label' => 'descripcion', // usa __toString(), pero es más explícito
-                'placeholder' => 'Seleccione un ítem',
             ]);
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void

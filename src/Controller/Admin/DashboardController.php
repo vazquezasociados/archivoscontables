@@ -7,6 +7,7 @@ use App\Entity\Memo;
 use App\Entity\User;
 use App\Entity\Items;
 use Symfony\Component\HttpFoundation\Response;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -27,6 +28,8 @@ class DashboardController extends AbstractDashboardController
             ->setTitle('Application');
     }
     
+    
+
     public function configureAssets(): Assets
     {
         return Assets::new()->addWebpackEncoreEntry('admin');
@@ -41,8 +44,9 @@ class DashboardController extends AbstractDashboardController
          MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
          MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),
         ]);
-        
+        yield MenuItem::section('Usuario');
         yield MenuItem::linkToCrud('Usuarios','fa-solid fa-users', User::class);
+       
     }
     
 }

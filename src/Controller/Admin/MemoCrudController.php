@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Memo;
 use App\Form\MemoLineaItemType;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -18,6 +19,16 @@ class MemoCrudController extends AbstractCrudController
         return Memo::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Memos')
+            // ->setPageTitle(Crud::PAGE_EDIT, 'Editar Item')
+            // ->setPageTitle(Crud::PAGE_NEW, 'Crear Item')
+            // ->setPageTitle(Crud::PAGE_DETAIL, 'Ver Item')
+            ->setPaginatorPageSize(10);
+            // ->setActionColumnTitle('Acciones');
+    }
     
     public function configureFields(string $pageName): iterable
     {
