@@ -11,6 +11,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions; 
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 
 class MemoCrudController extends AbstractCrudController
 {
@@ -23,13 +25,22 @@ class MemoCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Memos')
-            // ->setPageTitle(Crud::PAGE_EDIT, 'Editar Item')
-            // ->setPageTitle(Crud::PAGE_NEW, 'Crear Item')
-            // ->setPageTitle(Crud::PAGE_DETAIL, 'Ver Item')
             ->setPaginatorPageSize(10);
-            // ->setActionColumnTitle('Acciones');
+           
     }
-    
+        // ¡Aquí es donde configuras los botones de acción!
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            // En la página de índice (listado):
+            ->add(Crud::PAGE_INDEX, Action::DETAIL) // Agrega el botón "Ver" (Detail)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)  // Quita el botón "Editar" de la lista
+            // En la página de detalle (cuando ves un Memo individual):
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT) // Quita el botón "Editar" de la vista de detalle
+           
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
         return [

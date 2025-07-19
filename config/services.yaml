@@ -10,6 +10,16 @@ services:
     App\EventSubscriber\EasyAdminSubscriber:
             tags:
                 - { name: kernel.event_subscriber }
+
+    # Configuración para DomPDF
+    Dompdf\Dompdf:
+        public: true
+
+    # Servicio personalizado para generar PDFs
+    App\Service\PdfGeneratorService:
+        arguments:
+            $dompdf: '@Dompdf\Dompdf'
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

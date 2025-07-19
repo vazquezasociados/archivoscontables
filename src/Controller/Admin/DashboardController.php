@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Item;
 use App\Entity\Memo;
 use App\Entity\User;
-use App\Entity\Items;
+use App\Entity\Categoria;
 use Symfony\Component\HttpFoundation\Response;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -44,6 +44,7 @@ class DashboardController extends AbstractDashboardController
          MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
          MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),
         ]);
+        yield MenuItem::linkToCrud('Categorias', 'fas fa-list', Categoria::class);
         yield MenuItem::section('Usuario');
         yield MenuItem::linkToCrud('Usuarios','fa-solid fa-users', User::class);
        
