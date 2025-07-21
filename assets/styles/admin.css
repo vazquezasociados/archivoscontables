@@ -78,3 +78,7 @@ table.table thead th i {
     text-decoration: none;
 }
 
+/* En tu archivo assets/styles/admin.css */
+th.header-for-field-text span {
+    color: white !important;
+}

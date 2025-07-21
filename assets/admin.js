@@ -13,4 +13,4 @@ import './styles/admin.css';
 //         });
 //     });
 // });
-console.log('JS cargado correctamente');
+// console.log('JS cargado correctamente');

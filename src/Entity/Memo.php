@@ -92,4 +92,9 @@ public function removeLineItem(MemoLineItem $lineItem): static
     return $this;
 }
 
+public function getPdfDownloadLink(): string
+{
+    return ''; // Esto es solo un placeholder
+}
+
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Memo {{ memo.id }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .info { margin-bottom: 30px; }
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th, .items-table td { border: 1px solid #ddd; padding: 8px; }
+        .items-table th { background-color: #f2f2f2; text-align: left; }
+        .total { text-align: right; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MEMO #{{ memo.id }}</h1>
+    </div>
+    
+    <div class="info">
+        <p><strong>Fecha:</strong> {{ memo.createdAt|date('d/m/Y') }}</p>
+        <p><strong>Usuario:</strong> {{ nombre }}</p>
+        <p><strong>Estado:</strong> {{ memo.estado }}</p>
+    </div>
+    
+    {# {% if memo.lineItems is not empty %}
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in memo.lineItems %}
+                    <tr>
+                        <td>{{ item.producto }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.descripcion }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay ítems en este memo.</p>
+    {% endif %} #}
+</body>
+</html>

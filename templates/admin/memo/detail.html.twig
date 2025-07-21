@@ -1,0 +1,78 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block content_title %}
+    <div class="text-center mb-4">
+        <h1 class="display-6 fw-bold">Memo Número {{ entity.instance.id }}</h1>
+    </div>
+{% endblock %}
+
+{# {% block detail_fields %}
+    {% set fields = entity.fields %}
+    <div class="container-fluid">
+        <div class="card border-0 shadow-lg">
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    {% for field in fields %}
+                        <dt class="col-sm-4 col-md-3 text-end fw-normal text-muted">
+                            {{ field.label|trans }}
+                        </dt>
+                        <dd class="col-sm-8 col-md-9 mb-2">
+                            {% if field.formattedValue is defined and field.formattedValue is not null %}
+                                {{ field.formattedValue }}
+                            {% elseif field.value is defined and field.value is not null %}
+                                <div><h5>Detalle del Memo</h5></div>
+                            {% else %}
+                               
+                            {% endif %}
+                        </dd>
+                    {% endfor %}
+                </dl>
+            </div>
+        </div>
+    </div>
+{% endblock %} #}
+
+{% block detail_fields %}
+    <div class="container mx-auto" style="max-width: 800px;">
+        <div class="card bg-white overflow-hidden">
+            <div class="card-header px-4 py-3 border-bottom">
+                <h3 class="card-title mb-0 h5 fw-bold">Detalles del Memo</h3>
+            </div>
+            <div class="card-body p-0 shadow-lg">
+                <dl class="mb-0">
+                    <!-- Fecha de emisión -->
+                    <div class="row g-0 bg-light p-4">
+                        <dt class="col-md-4 text-muted fw-normal">Fecha de emisión</dt>
+                        <dd class="col-md-8">{{ entity.instance.createdAt|date('d/m/Y') }}</dd>
+                    </div>
+                    
+                    <!-- Estado -->
+                    <div class="row g-0 p-4">
+                        <dt class="col-md-4 text-muted fw-normal">Estado</dt>
+                        <dd class="col-md-8">
+                            <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                                {{ entity.instance.estado }}
+                            </span>
+                        </dd>
+                    </div>
+                    
+                    <!-- Usuario -->
+                    <div class="row g-0 bg-light p-4">
+                        <dt class="col-md-4 text-muted fw-normal">Usuario</dt>
+                        <dd class="col-md-8">{{ entity.instance.usuario }}</dd>
+                    </div>
+                    
+                    <!-- Ítems del Memo -->
+                    <div class="row g-0 p-4">
+                        <dt class="col-md-4 text-muted fw-normal">Ítems del Memo</dt>
+                        <dd class="col-md-8">
+                            <div class="border rounded p-3 bg-white">
+                                {{ entity.instance.lineItems|join(', ') }}
+                            </div>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+{% endblock %}

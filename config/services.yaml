@@ -19,6 +19,7 @@ services:
     App\Service\PdfGeneratorService:
         arguments:
             $dompdf: '@Dompdf\Dompdf'
+            $twig: '@twig'
 
     # default configuration for services in *this* file
     _defaults:
