@@ -16,7 +16,7 @@ Encore
     // Procesar imágenes
     .copyFiles({
         from: './assets/images',
-        to: 'images/[path][name].[ext]',
+        to: 'images/[path][name].[hash].[ext]',
         pattern: /\.(png|jpg|jpeg|gif|svg)$/i,
     })
     

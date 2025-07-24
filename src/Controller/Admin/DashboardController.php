@@ -25,7 +25,6 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('<img src="/build/images/logoBackend.svg" alt="Logo" style="height: 32px; vertical-align: middle;">')
             ->setFaviconPath('build/images/logoBackend.svg'); // Tu imagen SVG
     }
         
@@ -38,7 +37,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        // yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::subMenu(label: 'Memos')->setSubItems([
          MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
          MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),

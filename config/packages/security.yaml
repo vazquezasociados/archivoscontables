@@ -17,14 +17,16 @@ security:
             lazy: true
             provider: app_user_provider
             form_login:
-                login_path: admin_login
-                check_path: admin_login
+                login_path: app_login
+                check_path: app_login
                 enable_csrf: true
                 use_referer: true
                 default_target_path: admin  # Redirige al dashboard de EasyAdmin tras login
             logout:
-                path: admin_logout
-                target: admin_login
+                path: app_logout
+                target: app_login  # Redirección al login tras logout
+                # where to redirect after logout
+                # target: app_any_route
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800  # 1 semana
