@@ -6,32 +6,6 @@
     </div>
 {% endblock %}
 
-{# {% block detail_fields %}
-    {% set fields = entity.fields %}
-    <div class="container-fluid">
-        <div class="card border-0 shadow-lg">
-            <div class="card-body p-4">
-                <dl class="row mb-0">
-                    {% for field in fields %}
-                        <dt class="col-sm-4 col-md-3 text-end fw-normal text-muted">
-                            {{ field.label|trans }}
-                        </dt>
-                        <dd class="col-sm-8 col-md-9 mb-2">
-                            {% if field.formattedValue is defined and field.formattedValue is not null %}
-                                {{ field.formattedValue }}
-                            {% elseif field.value is defined and field.value is not null %}
-                                <div><h5>Detalle del Memo</h5></div>
-                            {% else %}
-                               
-                            {% endif %}
-                        </dd>
-                    {% endfor %}
-                </dl>
-            </div>
-        </div>
-    </div>
-{% endblock %} #}
-
 {% block detail_fields %}
     <div class="container mx-auto" style="max-width: 800px;">
         <div class="card bg-white overflow-hidden">
@@ -66,8 +40,37 @@
                     <div class="row g-0 p-4">
                         <dt class="col-md-4 text-muted fw-normal">Ítems del Memo</dt>
                         <dd class="col-md-8">
-                            <div class="border rounded p-3 bg-white">
-                                {{ entity.instance.lineItems|join(', ') }}
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Descripción</th>
+                                            <th>Detalle</th>
+                                            <th>Período</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if entity.instance.lineItems is not empty %}
+                                            {% for item in entity.instance.lineItems %}
+                                                <tr>
+                                                    <td>{{ item.item.descripcion ?? 'N/A' }}</td>
+                                                    <td>{{ item.descripcionAdicional is defined ? item.descripcionAdicional : 'N/A' }}</td>
+                                                    <td>
+                                                        {% if item.periodo is defined and item.periodo is not null %}
+                                                            {{ item.periodo|date('m/Y') }} {# Formatea la fecha como Mes/Año #}
+                                                        {% else %}
+                                                            N/A
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">No hay ítems registrados</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
                             </div>
                         </dd>
                     </div>

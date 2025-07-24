@@ -16,29 +16,25 @@ class Categoria
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Nombre = null;
+    private ?string $nombre = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $Descripcion = null;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $descripcion = null;
 
-    // Relación ManyToOne: Una subcategoría tiene un único padre.
-    // 'targetEntity: Categoria::class' apunta a la misma entidad.
-    // 'inversedBy: "subcategorias"' indica la propiedad en el lado inverso de la relación (OneToMany).
-    // 'JoinColumn' define la columna de clave foránea. 'nullable: true' permite categorías sin padre (raíz).
-    #[ORM\ManyToOne(targetEntity: Categoria::class, inversedBy: 'subcategorias')]
-    #[ORM\JoinColumn(name: 'padre_id', referencedColumnName: 'id', nullable: true)]
-    private ?Categoria $padre = null;
+    // Relación recursiva: Una categoría puede tener un padre
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'subcategorias')]
+    #[ORM\JoinColumn(name: 'padre_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?self $padre = null;
 
-    // Relación OneToMany: Un padre puede tener muchas subcategorías.
-    // 'mappedBy: "padre"' indica que la relación es definida por la propiedad 'padre' en el lado ManyToOne.
-    // 'cascade: ["persist", "remove"]' asegura que las operaciones de persistencia/eliminación se propaguen a las subcategorías.
-    #[ORM\OneToMany(mappedBy: 'padre', targetEntity: Categoria::class, cascade: ['persist', 'remove'], orphanRemoval: false)]
+    // Una categoría puede tener muchas subcategorías
+    #[ORM\OneToMany(mappedBy: 'padre', targetEntity: self::class, cascade: ['persist'], orphanRemoval: false)]
     private Collection $subcategorias;
-
+    
     public function __construct()
     {
         $this->subcategorias = new ArrayCollection();
     }
+
 
     public function getId(): ?int
     {
@@ -47,24 +43,24 @@ class Categoria
 
     public function getNombre(): ?string
     {
-        return $this->Nombre;
+        return $this->nombre;
     }
 
-    public function setNombre(string $Nombre): static
+    public function setNombre(string $nombre): static
     {
-        $this->Nombre = $Nombre;
+        $this->nombre = $nombre;
 
         return $this;
     }
 
     public function getDescripcion(): ?string
     {
-        return $this->Descripcion;
+        return $this->descripcion;
     }
 
-    public function setDescripcion(?string $Descripcion): static
+    public function setDescripcion(?string $descripcion): static
     {
-        $this->Descripcion = $Descripcion;
+        $this->descripcion = $descripcion;
 
         return $this;
     }
@@ -110,8 +106,9 @@ class Categoria
 
         return $this;
     }
-        public function __toString(): string
+
+    public function __toString(): string
     {
-        return $this->Nombre ?: 'Sin descripción';
+        return $this->nombre ?: 'Sin nombre';
     }
 }

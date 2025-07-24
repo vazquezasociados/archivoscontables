@@ -33,12 +33,12 @@ class MemoCrudController extends AbstractCrudController
     {
         
                 // Acción para descargar PDF
-        $downloadPdf = Action::new('downloadPdf', 'PDF', 'fa fa-file-pdf')
+        $downloadPdf = Action::new('downloadPdf', 'Imprimir', 'fa fa-file-pdf')
             ->linkToRoute('admin_memo_pdf', function (Memo $memo) {
                 return ['id' => $memo->getId()];
             })
             ->setHtmlAttributes(['target' => '_blank'])
-            ->setCssClass('btn btn-sm btn-danger');
+            ->setCssClass('btn btn-sm btn-primary');
 
         return $actions
             // En la página de índice (listado):
@@ -68,7 +68,7 @@ class MemoCrudController extends AbstractCrudController
                 ->setFormTypeOption('choice_label', 'nombre')
                 ->setColumns(4),
                         
-            TextField::new('pdfDownloadLink', 'Pdf')
+            TextField::new('pdfDownloadLink', 'Descarga')
                 ->setTemplatePath('admin/fields/pdf_column.html.twig')
                 ->onlyOnIndex()
                 ->addCssClass('pdf-header-white')

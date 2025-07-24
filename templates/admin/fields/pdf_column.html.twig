@@ -1,7 +1,7 @@
 {% set memoId = entity.instance ? entity.instance.id : entity.primaryKeyValue %}
 <a href="{{ path('admin_memo_pdf', {id: memoId}) }}" 
-   class="btn btn-sm btn-danger" 
+   class="btn btn-sm btn-primary" 
    target="_blank"
    title="Descargar PDF">
-    <i class="fa fa-file-pdf"></i> PDF
+    <i class="fa fa-file-pdf"></i> Imprimir
 </a>
