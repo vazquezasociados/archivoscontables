@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Archivo;
 use App\Entity\Item;
 use App\Entity\Memo;
 use App\Entity\User;
@@ -25,7 +26,8 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setFaviconPath('build/images/logoBackend.svg'); // Tu imagen SVG
+        ->setTitle('<img src="/img/logoBackend.svg" style="height:30px;">')
+        ->setFaviconPath('build/images/logoBackend.svg'); // Tu imagen SVG
     }
         
     
@@ -35,17 +37,27 @@ class DashboardController extends AbstractDashboardController
         return Assets::new()->addWebpackEncoreEntry('admin');
     }
 
-    public function configureMenuItems(): iterable
-    {
+   public function configureMenuItems(): iterable
+    {   
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::subMenu(label: 'Memos')->setSubItems([
-         MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
-         MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),
-        ]);
-        yield MenuItem::linkToCrud('Categorias', 'fas fa-list', Categoria::class);
-        yield MenuItem::section('Usuario');
-        yield MenuItem::linkToCrud('Usuarios','fa-solid fa-users', User::class);
-       
+        
+        // Menú para ROLE_ADMIN (incluye todo lo del USER y más)
+        if ($this->isGranted('ROLE_ADMIN')) {
+            yield MenuItem::subMenu('Memos', 'fa-solid fa-book')->setSubItems([
+                MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
+                MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),
+            ]);
+            
+            yield MenuItem::linkToCrud('Categorías', 'fa-solid fa-layer-group', Categoria::class);
+            yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
+            
+            yield MenuItem::section('Sección Clientes');
+            yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);
+        }
+        // Menú solo para ROLE_USER (si no es ADMIN)
+        elseif ($this->isGranted('ROLE_USER')) {
+            yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
+        }
     }
     
 }

@@ -7,6 +7,10 @@
 
 }
 
+.menu-item-contents {
+  padding: 10px 0px !important; /* Aumenta el padding */ 
+}
+
 .sidebar {
   background-color: var(--sidebar-bg) !important;
 }

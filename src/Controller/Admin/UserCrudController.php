@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -24,7 +26,36 @@ class UserCrudController extends AbstractCrudController
         private UserPasswordHasherInterface $passwordEncoder
     
     ){}
+    
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Clientes')
+            ->setPageTitle(Crud::PAGE_DETAIL, 'Detalle del Cliente')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Cliente') 
+            ->setPaginatorPageSize(10);
+            
+    }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            // Cambiar texto del botón "Nuevo"
+            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
+                return $action->setLabel('Crear Cliente');
+            });
+            
+            // Cambiar texto del botón "Editar"
+            // ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
+            //     return $action->setLabel('Modificar');
+            // })
+            
+            // Cambiar texto del botón "Eliminar"
+            // ->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
+            //     return $action->setLabel('Eliminar');
+            // });
+    }
+    
     public function configureFields(string $pageName): iterable
     {
         

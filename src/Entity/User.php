@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_CUIT', fields: ['nombreUsuario'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
    
@@ -64,10 +65,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Memo::class)]
     private Collection $memos;
+
+    /**
+     * @var Collection<int, Archivo>
+     */
+    #[ORM\OneToMany(targetEntity: Archivo::class, mappedBy: 'usuario_alta')]
+    private Collection $archivos;
     
     public function __construct()
     {
         $this->memos = new ArrayCollection();
+        $this->archivos = new ArrayCollection();
+         $this->roles = ['ROLE_USER'];
     }
     
     public function getId(): ?int
@@ -87,14 +96,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
+    // /**
+    //  * A visual identifier that represents this user.
+    //  *
+    //  * @see UserInterface
+    //  */
+    // public function getUserIdentifier(): string
+    // {
+    //     return (string) $this->email;
+    // }
+
+     /**
      * A visual identifier that represents this user.
      *
      * @see UserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string) $this->nombreUsuario; // Cambio clave aquí
     }
 
     /**
@@ -254,5 +273,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->nombre ?: 'Sin nombre';
+    }
+
+    /**
+     * @return Collection<int, Archivo>
+     */
+    public function getArchivos(): Collection
+    {
+        return $this->archivos;
+    }
+
+    public function addArchivo(Archivo $archivo): static
+    {
+        if (!$this->archivos->contains($archivo)) {
+            $this->archivos->add($archivo);
+            $archivo->setUsuarioAlta($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArchivo(Archivo $archivo): static
+    {
+        if ($this->archivos->removeElement($archivo)) {
+            // set the owning side to null (unless already changed)
+            if ($archivo->getUsuarioAlta() === $this) {
+                $archivo->setUsuarioAlta(null);
+            }
+        }
+
+        return $this;
     }
 }
