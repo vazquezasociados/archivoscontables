@@ -122,6 +122,7 @@ class Archivo
     public function isAsignado(): ?bool
     {
         return $this->asignado;
+        // return $this->getUsuarioClienteAsignado() !== null;
     }
 
     public function setAsignado(bool $asignado): static
@@ -129,6 +130,13 @@ class Archivo
         $this->asignado = $asignado;
 
         return $this;
+    }
+
+    public function getAsignadoTexto(): string
+    {
+        return $this->getUsuarioClienteAsignado() !== null
+            ? '<i class="fas fa-check-circle text-success"></i>'
+            : '<i class="fas fa-times-circle text-danger"></i>';
     }
 
     public function isPermitidoPublicar(): ?bool

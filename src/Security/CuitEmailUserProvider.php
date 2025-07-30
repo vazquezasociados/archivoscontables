@@ -18,19 +18,19 @@ class CuitEmailUserProvider implements UserProviderInterface, PasswordUpgraderIn
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        // 1. Buscar por CUIT
-        $user = $this->userRepository->findOneBy(['nombreUsuario' => $identifier]);
-        
-        if ($user) return $user;
-        
-        // 2. Buscar por email (solo admins)
-        $user = $this->userRepository->findOneBy(['email' => $identifier]);
-        
-        if ($user && array_intersect(['ROLE_ADMIN', 'ROLE_SUPERADMIN'], $user->getRoles())) {
-            return $user;
+        // Buscar por CUIT (nombreUsuario numérico)
+        if (preg_match('/^\d{11}$/', $identifier)) {
+            $user = $this->userRepository->findOneBy(['nombreUsuario' => $identifier]);
+        } else {
+            // Buscar por email si no es un CUIT
+            $user = $this->userRepository->findOneBy(['email' => $identifier]);
         }
-        
-        throw new UserNotFoundException('Usuario no encontrado');
+
+        if (!$user) {
+            throw new UserNotFoundException(sprintf('Usuario "%s" no encontrado.', $identifier));
+        }
+
+        return $user;
     }
     
     public function refreshUser(UserInterface $user): UserInterface

@@ -7,6 +7,7 @@ use App\Repository\MemoRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MemoRepository::class)]
 class Memo
@@ -27,6 +28,8 @@ class Memo
     private ?User $usuario = null;
 
     #[ORM\OneToMany(mappedBy: 'memo', targetEntity: MemoLineItem::class, cascade: ['persist'],orphanRemoval: true)]
+    #[Assert\Count(min: 1, minMessage: "Debes agregar al menos un ítem al Memo.")] // ¡Esta es la clave!
+    #[Assert\Valid] // Asegura que cada MemoLineItem dentro de la colección también sea válido
     private Collection $lineItems;
 
     public function __construct()

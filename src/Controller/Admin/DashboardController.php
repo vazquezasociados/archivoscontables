@@ -37,27 +37,30 @@ class DashboardController extends AbstractDashboardController
         return Assets::new()->addWebpackEncoreEntry('admin');
     }
 
-   public function configureMenuItems(): iterable
-    {   
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        
-        // Menú para ROLE_ADMIN (incluye todo lo del USER y más)
+    public function configureMenuItems(): iterable
+    {
+        // yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+
+        foreach ($this->getMenuItemsForRole() as $item) {
+            yield $item;
+        }
+    }
+
+    private function getMenuItemsForRole(): iterable
+    {
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::subMenu('Memos', 'fa-solid fa-book')->setSubItems([
                 MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
                 MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),
             ]);
-            
             yield MenuItem::linkToCrud('Categorías', 'fa-solid fa-layer-group', Categoria::class);
             yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
-            
             yield MenuItem::section('Sección Clientes');
             yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);
-        }
-        // Menú solo para ROLE_USER (si no es ADMIN)
-        elseif ($this->isGranted('ROLE_USER')) {
+        } elseif ($this->isGranted('ROLE_USER')) {
             yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
         }
     }
+
     
 }

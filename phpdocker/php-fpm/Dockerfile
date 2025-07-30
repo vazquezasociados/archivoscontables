@@ -30,6 +30,14 @@ ENV LANG=es_AR.UTF-8 \
 # Habilitar extensiones PHP explícitamente
 RUN phpenmod intl
 
+# --- INICIO: Agregado para permisos de sesión ---
+# Asegurarse de que el directorio de sesiones tiene los permisos correctos
+# El usuario de esta imagen (phpdockerio/php:8.2-fpm) para PHP-FPM es 'www-data' (UID/GID 82)
+RUN mkdir -p /var/lib/php/sessions && \
+    chown 82:82 /var/lib/php/sessions && \
+    chmod 0770 /var/lib/php/sessions
+# --- FIN: Agregado para permisos de sesión ---
+
 # Descarga y descomprime el archivo binario de Node.js
 RUN curl -o node.tar.xz https://nodejs.org/dist/v20.12.2/node-v20.12.2-linux-x64.tar.xz \
     && tar -xf node.tar.xz --strip-components=1 -C /usr/local \

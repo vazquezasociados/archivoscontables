@@ -7,8 +7,8 @@ security:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
             # entity:
-            #     class: App\Entity\User
-            #     property: email
+                # class: App\Entity\User
+                # property: email
             id: App\Security\CuitEmailUserProvider
     firewalls:
         dev:
@@ -23,17 +23,12 @@ security:
                 check_path: app_login
                 enable_csrf: true
                 use_referer: true
-                default_target_path: admin  # Redirige al dashboard de EasyAdmin tras login
+                default_target_path: /admin/archivo  # Redirige al dashboard de EasyAdmin tras login
             logout:
                 path: app_logout
                 target: app_login  # Redirección al login tras logout
                 # where to redirect after logout
                 # target: app_any_route
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800  # 1 semana
-                path: /
-                secure: true
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
@@ -43,11 +38,11 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/admin, roles: [ROLE_ADMIN,ROLE_USER] }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin/archivo, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
     role_hierarchy:
-        # Un administrador tendrá todos los permisos de un cliente.
         ROLE_ADMIN: [ROLE_USER]
+        ROLE_USER: []
 
 
 when@test:
