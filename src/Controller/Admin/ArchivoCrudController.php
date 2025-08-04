@@ -51,8 +51,8 @@ class ArchivoCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Archivos')
             ->setPageTitle(Crud::PAGE_NEW, 'Subir nuevo archivo')
             ->setPaginatorPageSize(10)
-            ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
-            ->overrideTemplate('crud/edit', 'admin/archivo/edit.html.twig')
+            // ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
+            // ->overrideTemplate('crud/edit', 'admin/archivo/edit.html.twig')
            ;
     }
 
@@ -130,8 +130,6 @@ class ArchivoCrudController extends AbstractCrudController
                     ->setCustomOption(IntegerField::OPTION_THOUSANDS_SEPARATOR, ',')
                     ->setColumns(2),
 
-                AssociationField::new('categoria', 'Categoría')
-                    ->onlyOnIndex(),
             ];
         }
 
@@ -177,10 +175,11 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setFormTypeOption('data', new \DateTime())                     
                 ->setColumns(2),
             
-            AssociationField::new('usuario_alta','Subido por')
-                ->onlyOnIndex()
-                ->setDisabled(),
-            
+            // Mostrar solo el nombre del usuario en el index
+            TextField::new('usuario_alta.nombre', 'Subido por')
+                ->onlyOnIndex(),
+
+ 
             TextField::new('asignadoTexto', 'Asignado')
                 ->onlyOnIndex()
                 ->renderAsHtml(),
@@ -224,9 +223,9 @@ class ArchivoCrudController extends AbstractCrudController
                 ->renderAsSwitch(false)
                 ->onlyOnForms(),
             
-            // BooleanField::new('notificar_cliente', 'Notificar al cliente')
-            //     ->onlyOnForms()
-            //     ->setFormTypeOption('mapped', false),
+            BooleanField::new('notificar_cliente', 'Notificar al cliente')
+                ->onlyOnForms()
+                ->setFormTypeOption('mapped', false),
         ];
     }
    

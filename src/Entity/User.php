@@ -71,6 +71,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Archivo::class, mappedBy: 'usuario_alta')]
     private Collection $archivos;
+
+    #[ORM\Column]
+    private ?bool $activo = true;
+
+    #[ORM\Column]
+    private ?bool $enviarCorreoBienvenido = true;
     
     public function __construct()
     {
@@ -303,5 +309,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function isActivo(): ?bool
+    {
+        return $this->activo;
+    }
+
+    public function setActivo(bool $activo): static
+    {
+        $this->activo = $activo;
+
+        return $this;
+    }
+
+    public function isEnviarCorreoBienvenido(): ?bool
+    {
+        return $this->enviarCorreoBienvenido;
+    }
+
+    public function setEnviarCorreoBienvenido(bool $enviarCorreoBienvenido): static
+    {
+        $this->enviarCorreoBienvenido = $enviarCorreoBienvenido;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of enviarCorreoBienvenido
+     */ 
+    public function getEnviarCorreoBienvenido()
+    {
+        return $this->enviarCorreoBienvenido;
     }
 }

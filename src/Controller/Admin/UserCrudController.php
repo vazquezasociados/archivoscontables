@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -82,11 +83,18 @@ class UserCrudController extends AbstractCrudController
             ->setHelp('Ingrese el CUIT (11 dígitos, sin guiones ni puntos)');
 
         $direccion = TextField::new('direccion', 'Dirección')
-            ->setColumns(4)
+            ->setColumns(3)
             ->hideOnIndex();
         $telefono = TextField::new('telefono', 'Teléfono')
-            ->setColumns(4)
+            ->setColumns(3)
             ->hideOnIndex();
+
+        $activo = BooleanField::new('activo', 'Activo')
+            ->setColumns(3);
+
+        $bienvenido = BooleanField::new('enviarCorreoBienvenido', 'Enviar correo de bienvenida')
+            ->setColumns(3); 
+
         $nombreContactoInterno = TextField::new('nombreContactoInterno', 'Nombre Contacto Interno')
             ->setColumns(4)
             ->hideOnIndex();
@@ -98,6 +106,8 @@ class UserCrudController extends AbstractCrudController
             ->setFormType(PasswordType::class)
             ->setRequired(false)->onlyOnForms()
             ->setPermission('ROLE_ADMIN');
+
+   
         // $maxCarga = IntegerField::new('maxCarga', 'Carga Máxima')->hideOnIndex();
         $roles = ChoiceField::new('roles', 'roles')
             ->setChoices($this->roles)
@@ -112,8 +122,10 @@ class UserCrudController extends AbstractCrudController
         if(Crud::PAGE_INDEX === $pageName){
             return[$nombre, $nombreUsuario,$email,$fechaAlta];
         }
-        return[$nombre,$nombreUsuario,$email,$password,$direccion,$telefono,
-        $nombreContactoInterno,$roles, $roles2];
+        return[$nombre,$nombreUsuario,$email,$password,$direccion,$telefono,$activo,$bienvenido,
+        $nombreContactoInterno,$roles, $roles2 ];
+
+
 
     }
 
