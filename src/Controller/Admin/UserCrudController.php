@@ -59,8 +59,9 @@ class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         
-        $nombre = TextField::new('nombre', 'Nombre');
-        $nombreUsuario = TextField::new('nombreUsuario','Nombre Usuario')
+        $nombre = TextField::new('nombre', 'Nombre del cliente')
+            ->setColumns(3);
+        $nombreUsuario = TextField::new('nombreUsuario','cuil/cuit')
             ->setFormType(TextType::class)  // Fuerza tipo texto
             ->setFormTypeOptions([
                 'attr' => [
@@ -77,21 +78,31 @@ class UserCrudController extends AbstractCrudController
                     ])
                 ]
             ])
+            ->setColumns(3)
             ->setHelp('Ingrese el CUIT (11 dígitos, sin guiones ni puntos)');
 
-        $direccion = TextField::new('direccion', 'Dirección')->hideOnIndex();
-        $telefono = TextField::new('telefono', 'Teléfono')->hideOnIndex();
+        $direccion = TextField::new('direccion', 'Dirección')
+            ->setColumns(4)
+            ->hideOnIndex();
+        $telefono = TextField::new('telefono', 'Teléfono')
+            ->setColumns(4)
+            ->hideOnIndex();
         $nombreContactoInterno = TextField::new('nombreContactoInterno', 'Nombre Contacto Interno')
-            ->hideOnIndex();        
-        $email     = TextField::new('email', 'Email');
+            ->setColumns(4)
+            ->hideOnIndex();
+
+        $email = TextField::new('email', 'Email')
+            ->setColumns(3);
         $password  = TextField::new('plainPassword', 'password')
+            ->setColumns(3)
             ->setFormType(PasswordType::class)
             ->setRequired(false)->onlyOnForms()
             ->setPermission('ROLE_ADMIN');
         // $maxCarga = IntegerField::new('maxCarga', 'Carga Máxima')->hideOnIndex();
         $roles = ChoiceField::new('roles', 'roles')
             ->setChoices($this->roles)
-            ->allowMultipleChoices(true);
+            ->allowMultipleChoices(true)
+            ->setColumns(4);
         $roles2 = ChoiceField::new('roles', 'roles')
             ->onlyOnIndex()->renderAsBadges()
             ->setChoices($this->rolesComplete);

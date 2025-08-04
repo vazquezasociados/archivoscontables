@@ -1,0 +1,63 @@
+{% extends '@EasyAdmin/crud/new.html.twig' %}
+
+{# Eliminar los botones del header #}
+{% block page_actions %}
+{% endblock %}
+
+{# Agregar botones al final del contenido #}
+{% block main %}
+    {{ parent() }}
+    
+    {# Botones al final del formulario, después del contenido #}
+    <div class="form-actions-bottom mt-4 d-flex justify-content-end">
+        <div class="btn-group" role="group">
+            {# Botón Volver al listado #}
+            <a href="{{ ea_url().setAction('index') }}" class="btn btn-secondary">
+                <i class="fa fa-list"></i> Volver al listado
+            </a>
+            
+            {# Botón Crear y añadir otro (SE QUEDA en el formulario) #}
+            <button type="submit" form="new-Archivo-form" name="ea[newForm]" value="1" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Crear y añadir otro
+            </button>
+            
+            {# Botón Guardar (VA al listado) #}
+            <button type="submit" form="new-Archivo-form" class="btn btn-success">
+                <i class="fa fa-save"></i> Guardar
+            </button>
+        </div>
+    </div>
+
+    {# Estilos adicionales #}
+    <style>
+        .form-actions-bottom {
+            margin-top: 30px;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .form-actions-bottom .btn {
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        
+        .form-actions-bottom .btn i {
+            margin-right: 8px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-actions-bottom .btn-group {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+            
+            .form-actions-bottom .btn {
+                width: 100%;
+                margin-bottom: 0;
+            }
+        }
+    </style>
+{% endblock %}

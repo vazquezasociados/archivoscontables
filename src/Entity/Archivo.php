@@ -268,6 +268,9 @@ class Archivo
     {
         $this->usuario_cliente_asignado = $usuario_cliente_asignado;
 
+        // Actualiza el estado de asignado llamando al setter
+        $this->setAsignado($usuario_cliente_asignado !== null);
+         
         return $this;
     }
 
