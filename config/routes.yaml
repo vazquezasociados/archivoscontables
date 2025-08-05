@@ -7,3 +7,10 @@ controllers:
 admin_generate_pdf:
     path: /admin/memo/{id}/pdf
     controller: App\Controller\Admin\MemoPdfController::class
+    
+app_redirect_to_login:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: /login
+        permanent: true
