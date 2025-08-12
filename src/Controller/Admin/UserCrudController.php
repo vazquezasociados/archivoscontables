@@ -3,15 +3,18 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -24,7 +27,9 @@ class UserCrudController extends AbstractCrudController
     public function __construct(
         private array $roles, 
         private array $rolesComplete,
-        private UserPasswordHasherInterface $passwordEncoder
+        private UserPasswordHasherInterface $passwordEncoder,
+        private AdminUrlGenerator $adminUrlGenerator,
+        private UserRepository $userRepository,
     
     ){}
     
@@ -40,23 +45,61 @@ class UserCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        // Crear la acción personalizada "Ver archivos"
+        $verArchivos = Action::new('verArchivos', 'Ver archivos')
+            ->linkToCrudAction('verArchivosCliente')
+            ->setHtmlAttributes([
+                'title' => 'Ver archivos asignados al cliente'
+            ])
+            ;
+       
         return $actions
-            // Cambiar texto del botón "Nuevo"
-            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
+            ->add(Crud::PAGE_INDEX, $verArchivos)// Agregar la acción personalizada al índice
+            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) { // Cambiar texto del botón "Nuevo"
                 return $action->setLabel('Crear Cliente');
-            });
-            
-            // Cambiar texto del botón "Editar"
-            // ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
-            //     return $action->setLabel('Modificar');
-            // })
-            
-            // Cambiar texto del botón "Eliminar"
-            // ->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
-            //     return $action->setLabel('Eliminar');
-            // });
+            })
+            // Solo mostrar la acción para usuarios con rol USER (no para admins)
+            ->setPermission('verArchivos', 'ROLE_ADMIN');
+
     }
     
+    public function verArchivosCliente(): RedirectResponse
+    {
+        // Obtener el ID del usuario desde la URL
+        $userId = $this->getContext()->getRequest()->query->get('entityId');
+        
+        if (!$userId) {
+            $this->addFlash('error', 'No se pudo identificar al cliente.');
+            return $this->redirect($this->adminUrlGenerator
+                ->setController(UserCrudController::class)
+                ->setAction(Action::INDEX)
+                ->generateUrl()
+            );
+        }
+
+        // Verificar que el usuario existe usando el Repository
+        $user = $this->userRepository->find($userId);
+        if (!$user) {
+            $this->addFlash('error', 'Cliente no encontrado.');
+            return $this->redirect($this->adminUrlGenerator
+                ->setController(UserCrudController::class)
+                ->setAction(Action::INDEX)
+                ->generateUrl()
+            );
+        }
+
+        // Mensaje informativo
+        $this->addFlash('info', sprintf('Mostrando archivos asignados a: %s', $user->getNombre()));
+
+        // Redirigir al CRUD de archivos con parámetro de usuario
+        return $this->redirect($this->adminUrlGenerator
+            ->setController(ArchivoCrudController::class)
+            ->setAction(Action::INDEX)
+            ->set('clienteId', $userId)
+            ->generateUrl()
+        );
+    }
+
     public function configureFields(string $pageName): iterable
     {
         

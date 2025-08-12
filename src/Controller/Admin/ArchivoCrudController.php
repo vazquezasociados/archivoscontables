@@ -2,9 +2,11 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Archivo;
+use App\Entity\User;
 
+use App\Entity\Archivo;
 use Doctrine\ORM\QueryBuilder;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Vich\UploaderBundle\Form\Type\VichFileType;
@@ -13,7 +15,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use Symfony\Component\HttpFoundation\RequestStack;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -28,7 +32,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 class ArchivoCrudController extends AbstractCrudController
 {
     public function __construct(
-        private Security $security
+        private Security $security,
+        private UserRepository $userRepository,
+        private RequestStack $requestStack
     ) {}
     
     public static function getEntityFqcn(): string
@@ -46,9 +52,24 @@ class ArchivoCrudController extends AbstractCrudController
     }
 
     public function configureCrud(Crud $crud): Crud
-    {
+    {   
+         $title = 'Listado de Archivos';
+                
+        // Si hay un filtro por cliente, personalizar el título
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request && $request->query->has('filters')) {
+            $filters = $request->query->all('filters');
+            if (isset($filters['usuario_cliente_asignado']['value']) && !empty($filters['usuario_cliente_asignado']['value'])) {
+                $userId = $filters['usuario_cliente_asignado']['value'];
+                $user = $this->userRepository->find($userId);
+                if ($user) {
+                    $title = sprintf('📁 Archivos de %s', $user->getNombre());
+                }
+            }
+        }
+        
         return $crud
-            ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Archivos')
+            ->setPageTitle(Crud::PAGE_INDEX,  $title)
             ->setPageTitle(Crud::PAGE_NEW, 'Subir nuevo archivo')
             ->setPaginatorPageSize(10)
             // ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
@@ -58,26 +79,48 @@ class ArchivoCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        
-        // Si no es admin, remover todas las acciones excepto visualización
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            return $actions
-                // Remover botón "Crear nuevo"
-                ->remove(Crud::PAGE_INDEX, Action::NEW)
-                // Remover acciones de cada fila
-                ->remove(Crud::PAGE_INDEX, Action::EDIT)
-                ->remove(Crud::PAGE_INDEX, Action::DELETE);
-        }
 
-        // Para administradores, mantener tu configuración original
-        return $actions
-            // Cambiar texto del botón "Nuevo"
-            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
-                return $action->setLabel('Subir Archivo');
-            });
-            
+        $actions = $actions
+        ->setPermission(Action::NEW, 'ROLE_ADMIN')
+        ->setPermission(Action::EDIT, 'ROLE_ADMIN')
+        ->setPermission(Action::DELETE, 'ROLE_ADMIN')
+        ->setPermission(Action::DETAIL, 'ROLE_ADMIN')
+        ->update(Crud::PAGE_INDEX, Action::NEW, fn(Action $action) => $action->setLabel('Subir Archivo'));        
+        return $actions;
     }
-    
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $filters->add('usuario_cliente_asignado');
+            // $filters->add('titulo');
+            
+        }
+        
+        return $filters;
+    }
+            
+    // public function configureFilters(Filters $filters): Filters 
+    // {
+    //     if ($this->isGranted('ROLE_ADMIN')) {
+    //         $filters->add('usuario_cliente_asignado');
+            
+    //         // Si hay un filtro activo, mostrar mensaje
+    //         $request = $this->getContext()->getRequest();
+    //         $clienteId = $request->query->get('usuario_cliente_asignado');
+            
+    //         if ($clienteId) {
+    //             // Obtener el nombre del cliente
+    //             $cliente = $this->getDoctrine()->getRepository(User::class)->find($clienteId);
+    //             if ($cliente) {
+    //                 $this->addFlash('info', sprintf('Mostrando archivos del cliente: %s', $cliente->getNombre()));
+    //             }
+    //         }
+    //     }
+        
+    //     return $filters;
+    // }
+
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
         $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
@@ -86,11 +129,20 @@ class ArchivoCrudController extends AbstractCrudController
         if (!$this->isGranted('ROLE_ADMIN')) {
             $qb->andWhere('entity.usuario_cliente_asignado = :user')
                 ->setParameter('user', $this->getUser());
+        } else {
+            // Si es admin y hay un parámetro clienteId, filtrar por ese cliente
+            $request = $this->getContext()?->getRequest();
+            if ($request && $request->query->has('clienteId')) {
+                $clienteId = $request->query->get('clienteId');
+                $qb->andWhere('entity.usuario_cliente_asignado = :clienteId')
+                   ->setParameter('clienteId', $clienteId);
+            }
         }
 
         return $qb;
     }
     
+
 
    public function configureFields(string $pageName): iterable
     {
@@ -228,5 +280,6 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setFormTypeOption('mapped', false),
         ];
     }
+
    
 }

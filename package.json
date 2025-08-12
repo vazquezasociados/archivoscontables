@@ -8,8 +8,10 @@
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
         "@symfony/webpack-encore": "^5.0.0",
         "core-js": "^3.38.0",
+        "css-loader": "^7.1.2",
         "file-loader": "^6.0.0",
         "regenerator-runtime": "^0.13.9",
+        "style-loader": "^4.0.0",
         "webpack": "^5.74.0",
         "webpack-cli": "^5.1.0"
     },
@@ -20,5 +22,9 @@
         "dev": "encore dev",
         "watch": "encore dev --watch",
         "build": "encore production --progress"
+    },
+    "dependencies": {
+        "@popperjs/core": "^2.11.8",
+        "bootstrap": "^5.3.7"
     }
 }

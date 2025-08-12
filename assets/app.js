@@ -6,4 +6,8 @@
  */
 
 // any CSS you import will output into a single css file (app.css in this case)
+import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Bootstrap + Popper JS
+// Importa tu CSS personalizado
 import './styles/app.css';
+

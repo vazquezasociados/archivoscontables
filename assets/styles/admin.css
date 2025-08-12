@@ -6,6 +6,11 @@
   --text-active: #ffffff; /* Nuevo: Color blanco para texto activo */
 
 }
+/*Accion ver archivo */
+.action-verArchivos {
+    margin-right: 5px;
+}
+/*Accion ver archivo */
 
 .menu-item-contents {
   padding: 10px 0px !important; /* Aumenta el padding */ 

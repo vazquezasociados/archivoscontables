@@ -1,162 +1,63 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ingresar al Admin{% endblock %}
+{% block title %}Login - Vazquez Contadores{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    <style>
-        :root {
-            --primary-color: #4a6bff;
-            --primary-hover: #3a56d4;
-            --text-color: #2d3748;
-            --border-color: #e2e8f0;
-            --error-color: #e53e3e;
-        }
-        
-        body {
-            background-color: #f7fafc;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            color: var(--text-color);
-        }
-        
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1rem;
-        }
-        
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            padding: 2.5rem;
-            margin: 1rem;
-        }
-        
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .login-title {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-            width: 100%;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            box-sizing: border-box;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.1);
-        }
-        
-        .btn-login {
-            width: 100%;
-            padding: 0.875rem;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-login:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        .alert-danger {
-            background-color: #fff5f5;
-            color: var(--error-color);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--error-color);
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 1.5rem;
-            }
-            
-            .login-title {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
 {% endblock %}
 
 {% block body %}
-    <div class="login-container">
-        <div class="login-header">
-            <img src="{{ asset('build/images/logo_login.svg') }}" alt="logo_login"  style="width: 80%; hight:auto">
-        <div>
-        <div class="login-card">
-            {# <div class="login-header">
-                <h1 class="login-title">Ingresar al Admin</h1>
-            </div> #}
-            
+<div class="container-fluid login-container">
+    <div class="row login-row g-0">
+        <!-- Columna Izquierda -->
+        <div class="col-md-6 login-left d-none d-md-flex">
+        </div>
+        
+        <!-- Columna Derecha -->
+        <div class="col-md-6 login-right">
+       
+
             {% if error %}
-                <div class="alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
             {% endif %}
 
             {% if app.user %}
                 <div class="mb-3">
-                    Ya has iniciado sesión como {{ app.user.userIdentifier }}, 
+                    Ya has iniciado sesión como {{ app.user.userIdentifier }},
                     <a href="{{ path('app_logout') }}">Cerrar sesión</a>
                 </div>
             {% endif %}
+            <img src="{{ asset('build/images/Vazquez_logo_a.svg') }}" alt="Vazquez Contadores" class="login-logo">
 
             <form method="post">
-                <div class="form-group">
-                    <label for="username" class="form-label">Nombre de usuario</label>
-                    <input type="text" value="{{ last_username }}" name="_username" id="username" 
-                           class="form-input" autocomplete="email" required autofocus>
+                <div class="mb-3">
+                    <label for="username" class="form-label">CUIT/CUIL</label>
+                    <input type="text" value="{{ last_username }}" name="_username" id="username"
+                           class="form-control required" required autofocus>
                 </div>
-                
-                <div class="form-group">
+
+                <div class="mb-2">
                     <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" name="_password" id="password" 
-                           class="form-input" autocomplete="current-password" required>
+                    <input type="password" name="_password" id="password"
+                           class="form-control required" required>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted">¿Olvidó su contraseña? <a class="link" href="#">Establecer una nueva</a></small>
                 </div>
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <button class="btn-login" type="submit">
+                <button type="submit" class="btn btn-primary w-100 mb-2">
                     Iniciar sesión
                 </button>
-                <p>Si necesita una cuenta, por favor contacte al administrador del servidor</p>
+                
+                <p class="mt-4 small text-muted">
+                    El acceso al sistema se gestiona a través del administrador.
+                    Para solicitar una cuenta, por favor contacte a la administración de la plataforma.
+                </p>
             </form>
         </div>
     </div>
+</div>
 {% endblock %}
