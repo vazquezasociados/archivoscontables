@@ -97,3 +97,28 @@ th.header-for-field-text span {
     border-radius: 4px;
     transition: background-color 0.3s ease;
 }
+.btn-primary:hover {
+    background-color: #b8308e !important;
+}
+.form-group.field-collection .accordion{
+    background-color: #f8f9fa;
+    color: #495057;
+    border-radius: 4px;
+    box-shadow: none;
+}
+input.form-control:required, select:required, .ts-wrapper.form-select.single.plugin-dropdown_input.required.invalid {
+  background-color: #fff4cc;
+  border: 1px solid #ccc;
+}
+button.btn.btn-link.field-collection-add-button {
+    color: #d53aa6;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-top: 1px solid #d53aa6;
+    border-bottom: 1px solid #d53aa6;
+    padding: 10px 0;
+    display: inline-block;
+    border-radius: 0px;
+    text-align: center;
+    width: 100%;
+}
