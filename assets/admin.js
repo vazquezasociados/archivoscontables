@@ -1,16 +1,86 @@
 import './styles/admin.css';
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     const inputs = document.querySelectorAll('.date-mask');
+//== Buscador en tiempo real==//
+let searchTimeout;
 
-//     inputs.forEach(input => {
-//         input.addEventListener('input', (e) => {
-//             let value = input.value.replace(/\D/g, ''); // Solo números
-//             if (value.length > 2) {
-//                 value = value.slice(0, 2) + '/' + value.slice(2, 6);
-//             }
-//             input.value = value;
-//         });
-//     });
-// });
-// console.log('JS cargado correctamente');
+// Esta función hará la búsqueda asíncrona (AJAX)
+function triggerSearch(inputElement) {
+    // console.log("admin.js: Realizando búsqueda con AJAX...");
+
+    const searchForm = inputElement.closest('form');
+    if (!searchForm) {
+        // console.error("No se encontró el formulario de búsqueda.");
+        return;
+    }
+
+    const searchQuery = inputElement.value;
+    const currentUrl = new URL(window.location.href);
+    
+    // Obtener la URL de la petición. La acción del formulario ya tiene la URL correcta.
+    const searchUrl = new URL(searchForm.action);
+    searchUrl.searchParams.set('query', searchQuery);
+    
+    // Envía la petición sin recargar la página
+    fetch(searchUrl.toString())
+        .then(response => response.text())
+        .then(html => {
+            // Reemplazar solo la tabla de resultados en el DOM
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newTable = doc.querySelector('.datagrid'); // Clase CSS de la tabla en EasyAdmin
+
+            const oldTable = document.querySelector('.datagrid');
+            if (oldTable && newTable) {
+                oldTable.innerHTML = newTable.innerHTML;
+            }
+
+            // Mantiene el foco en el input después de la actualización
+            inputElement.focus();
+        })
+        .catch(error => console.error("Error en la búsqueda:", error));
+}
+
+function setupDynamicSearch() {
+    // console.log("admin.js: Intentando configurar la búsqueda...");
+    const searchInput = document.querySelector('input[name="query"]');
+
+    if (searchInput) {
+        // console.log("admin.js: Elemento de búsqueda encontrado.", searchInput);
+        
+        searchInput.addEventListener('keyup', () => {
+            // console.log("admin.js: Evento 'keyup' detectado. Reiniciando temporizador...");
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                triggerSearch(searchInput);
+            }, 300);
+        });
+
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                // console.log("admin.js: Tecla Enter presionada. Búsqueda inmediata.");
+                event.preventDefault();
+                clearTimeout(searchTimeout);
+                triggerSearch(searchInput);
+            }
+        });
+    } else {
+        // console.log("admin.js: Elemento de búsqueda NO encontrado.");
+    }
+}
+
+const observer = new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            // console.log("admin.js: Mutación del DOM detectada. Re-configurando la búsqueda...");
+            setupDynamicSearch();
+        }
+    }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+document.addEventListener('DOMContentLoaded', () => {
+    // console.log("admin.js: DOM cargado. Configurando la búsqueda...");
+    setupDynamicSearch();
+});
+//== Fin Buscador en tiempo real==//

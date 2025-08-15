@@ -88,9 +88,6 @@ class UserCrudController extends AbstractCrudController
             );
         }
 
-        // Mensaje informativo
-        $this->addFlash('info', sprintf('Mostrando archivos asignados a: %s', $user->getNombre()));
-
         // Redirigir al CRUD de archivos con parámetro de usuario
         return $this->redirect($this->adminUrlGenerator
             ->setController(ArchivoCrudController::class)

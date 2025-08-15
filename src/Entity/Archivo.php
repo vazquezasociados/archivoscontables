@@ -79,7 +79,7 @@ class Archivo
     public function __construct()
     {
         $this->asignado = false;
-        $this->permitido_publicar = false;
+        $this->permitido_publicar = true;
         $this->expira = false;
         $this->ocultar_nuevo = false;
         $this->ocultar_viejo = false;
@@ -187,10 +187,13 @@ class Archivo
         return $this;
     }
 
-    public function getUrlPublica(): ?string
-    {
-        return $this->url_publica;
-    }
+    // public function getUrlPublica(): ?string
+    // {
+    //     if (!$this->nombre_archivo) {
+    //         return null;
+    //     }
+    //     return rtrim($_ENV['APP_URL'] ?? '', '/') . '/uploads/archivos_pdf/' . $this->nombre_archivo;
+    // }
 
     public function setUrlPublica(?string $url_publica): static
     {
@@ -321,4 +324,17 @@ class Archivo
 
         return $this;
     }
+
+    // public function getUrlCompleta(): ?string
+    // {
+    //     if (!$this->getNombreArchivo()) {
+    //         return null;
+    //     }
+    //     // dd('Estoy aqui');
+    //     // En un contexto de controlador usarías RequestStack
+    //     // Pero en la entidad usamos este enfoque:
+    //     $appUrl = $_ENV['APP_URL'] ?? '';
+    //     return rtrim($appUrl, '/') . '/uploads/archivos_pdf/' . $this->getNombreArchivo();
+    // }
+
 }

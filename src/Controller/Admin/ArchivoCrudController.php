@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
@@ -22,20 +23,25 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-
 
 class ArchivoCrudController extends AbstractCrudController
 {
     public function __construct(
         private Security $security,
         private UserRepository $userRepository,
-        private RequestStack $requestStack
-    ) {}
+        private RequestStack $requestStack,
+        private string $appUrl
+        
+    ) {
+        $this->appUrl = rtrim($appUrl, '/');
+    }
     
     public static function getEntityFqcn(): string
     {
@@ -53,20 +59,32 @@ class ArchivoCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {   
-         $title = 'Listado de Archivos';
-                
-        // Si hay un filtro por cliente, personalizar el título
+         
+        $title = 'Listado de Archivos';
         $request = $this->requestStack->getCurrentRequest();
-        if ($request && $request->query->has('filters')) {
+
+        // Priorizar el 'clienteId' si viene de la acción de usuario
+        $clienteIdParam = $request->query->get('clienteId');
+        $filteredUserId = null;
+
+        if ($clienteIdParam) {
+            $filteredUserId = $clienteIdParam;
+        } elseif ($request && $request->query->has('filters')) {
+            // Si no hay 'clienteId' directo, buscar en los filtros de EasyAdmin
             $filters = $request->query->all('filters');
             if (isset($filters['usuario_cliente_asignado']['value']) && !empty($filters['usuario_cliente_asignado']['value'])) {
-                $userId = $filters['usuario_cliente_asignado']['value'];
-                $user = $this->userRepository->find($userId);
-                if ($user) {
-                    $title = sprintf('📁 Archivos de %s', $user->getNombre());
-                }
+                $filteredUserId = $filters['usuario_cliente_asignado']['value'];
             }
         }
+
+        // Si se encontró un ID de usuario por cualquier método, personalizar el título
+        if ($filteredUserId) {
+            $user = $this->userRepository->find($filteredUserId);
+            if ($user) {
+                $title = sprintf('📁 Archivos de %s', $user->getNombre());
+            }
+        }
+        
         
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX,  $title)
@@ -100,26 +118,6 @@ class ArchivoCrudController extends AbstractCrudController
         return $filters;
     }
             
-    // public function configureFilters(Filters $filters): Filters 
-    // {
-    //     if ($this->isGranted('ROLE_ADMIN')) {
-    //         $filters->add('usuario_cliente_asignado');
-            
-    //         // Si hay un filtro activo, mostrar mensaje
-    //         $request = $this->getContext()->getRequest();
-    //         $clienteId = $request->query->get('usuario_cliente_asignado');
-            
-    //         if ($clienteId) {
-    //             // Obtener el nombre del cliente
-    //             $cliente = $this->getDoctrine()->getRepository(User::class)->find($clienteId);
-    //             if ($cliente) {
-    //                 $this->addFlash('info', sprintf('Mostrando archivos del cliente: %s', $cliente->getNombre()));
-    //             }
-    //         }
-    //     }
-        
-    //     return $filters;
-    // }
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
@@ -166,10 +164,9 @@ class ArchivoCrudController extends AbstractCrudController
                         $ruta = '/uploads/archivos_pdf/' . $entity->getNombreArchivo();
 
                         return sprintf(
-                            '<a href="%s" download style="text-decoration: underline; color: #007bff;">%s</a>',
-                            $ruta,
-                            htmlspecialchars($value)
-                        );
+                            '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
+                            htmlspecialchars($ruta), 
+                            htmlspecialchars($value));
                     })
                     ->renderAsHtml(),
 
@@ -204,9 +201,10 @@ class ArchivoCrudController extends AbstractCrudController
                     // Ruta pública donde se guardan los archivos (ajustá según tu config de VichUploader)
                     $ruta = '/uploads/archivos_pdf/' . $entity->getNombreArchivo();
 
+                 
                     return sprintf(
-                        '<a href="%s" download style="text-decoration: underline; color: #007bff;">%s</a>',
-                        $ruta,
+                        '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
+                        htmlspecialchars($ruta),
                         htmlspecialchars($value)
                     );
                 })
@@ -259,7 +257,7 @@ class ArchivoCrudController extends AbstractCrudController
                 ->onlyOnForms(),
            
             // Sección 4: Carga de archivo
-            TextField::new('archivoFile', 'link de descarga')
+            Field::new('archivoFile', 'Subir Archivo PDF')
                 ->setFormType(VichFileType::class)
                 ->setFormTypeOptions([
                     'allow_delete' => false,
@@ -267,17 +265,24 @@ class ArchivoCrudController extends AbstractCrudController
                 ])
                 ->onlyOnForms(),
 
-            // TextField::new('archivo')
-            //     ->onlyOnIndex(),
+    
+        // TextareaField::new('getUrlCompleta', 'URL publica')
+        //     ->formatValue(function ($value, $entity) {
+        //         return sprintf('<a href="%s" target="_blank">%s</a>', $value, $entity->getNombreArchivo());
+        //     })
+        //     ->onlyOnForms()
+        //     ->setColumns(4)
+        //     ->setDisabled(true)
+        //     ->renderAsHtml(),
 
-            // Sección 3: Observaciones (checkboxes)
-            BooleanField::new('permitido_publicar', 'Permitir descarga pública')
-                ->renderAsSwitch(false)
-                ->onlyOnForms(),
+
+            // BooleanField::new('permitido_publicar', 'Permitir descarga pública')
+            //     ->onlyOnForms()
+            //     ->setFormTypeOption('attr', ['id' => 'permitido_publicar_toggle']),
             
-            BooleanField::new('notificar_cliente', 'Notificar al cliente')
-                ->onlyOnForms()
-                ->setFormTypeOption('mapped', false),
+            // BooleanField::new('notificar_cliente', 'Notificar al cliente')
+            //     ->onlyOnForms()
+            //     ->setFormTypeOption('mapped', false),
         ];
     }
 
