@@ -336,5 +336,14 @@ class Archivo
     //     $appUrl = $_ENV['APP_URL'] ?? '';
     //     return rtrim($appUrl, '/') . '/uploads/archivos_pdf/' . $this->getNombreArchivo();
     // }
+    
+    public function getUrlCompleta(): ?string
+    {
+        // Usa la variable de entorno APP_URL para generar la URL completa
+        $baseUrl = $_ENV['APP_URL'] ?? '';
+        return rtrim($baseUrl, '/') . '/descargar/' . $this->getId();
+    }
+
+
 
 }

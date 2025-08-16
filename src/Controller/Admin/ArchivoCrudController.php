@@ -52,9 +52,16 @@ class ArchivoCrudController extends AbstractCrudController
         // Asignar usuario automáticamente
         if ($entityInstance instanceof Archivo && !$entityInstance->getUsuarioAlta()) {
             $entityInstance->setUsuarioAlta($this->security->getUser());
+             // No tocar permitido_publicar aquí, lo decido manualmente
         }
         
         parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        // Tampoco tocar permitido_publicar aquí
+        parent::updateEntity($entityManager, $entityInstance);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -265,21 +272,24 @@ class ArchivoCrudController extends AbstractCrudController
                 ])
                 ->onlyOnForms(),
 
-    
-        // TextareaField::new('getUrlCompleta', 'URL publica')
-        //     ->formatValue(function ($value, $entity) {
-        //         return sprintf('<a href="%s" target="_blank">%s</a>', $value, $entity->getNombreArchivo());
-        //     })
-        //     ->onlyOnForms()
-        //     ->setColumns(4)
-        //     ->setDisabled(true)
-        //     ->renderAsHtml(),
+            BooleanField::new('permitido_publicar', 'Permitir descarga pública')
+                ->onlyOnForms()
+                ->setFormTypeOption('attr', [
+                    'data-permitido-publicar' => 'true'
+                ]),
+
+            TextareaField::new('getUrlCompleta', 'URL publica')
+                ->formatValue(function ($value, $entity) {
+                    return sprintf('<a href="%s" target="_blank">%s</a>', $value, $entity->getNombreArchivo());
+                })
+                ->onlyOnForms()
+                ->setColumns(4)
+                ->setDisabled(true)
+                ->renderAsHtml(),
 
 
-            // BooleanField::new('permitido_publicar', 'Permitir descarga pública')
-            //     ->onlyOnForms()
-            //     ->setFormTypeOption('attr', ['id' => 'permitido_publicar_toggle']),
-            
+          
+
             // BooleanField::new('notificar_cliente', 'Notificar al cliente')
             //     ->onlyOnForms()
             //     ->setFormTypeOption('mapped', false),
