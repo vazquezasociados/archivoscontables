@@ -160,6 +160,13 @@ th.header-for-field-text span {
 }
 /*== Fin Estilo para buscador ==*/
 
+/*== Boton cancelar ==*/
+.btn-custom-cancel{
+    /* Ajusta el padding para que coincida con los otros botones */
+    padding: 10px 15px; 
+}
+/*== Boton cancelar ==*/
+
 /* ESTILOS POLLOS */
 .btn-primary {
     background-color: #d53aa6;

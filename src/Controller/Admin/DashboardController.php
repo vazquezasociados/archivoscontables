@@ -29,8 +29,6 @@ class DashboardController extends AbstractDashboardController
         ->setTitle('<img src="/img/logoBackend.svg" style="height:30px;">')
         ->setFaviconPath('build/images/logoBackend.svg'); // Tu imagen SVG
     }
-        
-    
 
     public function configureAssets(): Assets
     {
@@ -50,12 +48,13 @@ class DashboardController extends AbstractDashboardController
     {
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::subMenu('Memos', 'fa-solid fa-book')->setSubItems([
-                MenuItem::linkToCrud('Memos', 'fa-solid fa-book', Memo::class),
-                MenuItem::linkToCrud('Items', 'fas fa-list', Item::class),
+                MenuItem::linkToCrud('listado de memos', '', Memo::class),
+                MenuItem::linkToCrud('Items', '', Item::class),
             ]);
-            yield MenuItem::linkToCrud('Categorías', 'fa-solid fa-layer-group', Categoria::class);
-            yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
-            yield MenuItem::section('Sección Clientes');
+            yield MenuItem::subMenu('Archivos', 'fa-solid fa-folder-open')->setSubItems([
+                MenuItem::linkToCrud('Lista de rchivos', '', Archivo::class),
+                MenuItem::linkToCrud('Categorías', '', Categoria::class),
+            ]);
             yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);
         } elseif ($this->isGranted('ROLE_USER')) {
             yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);

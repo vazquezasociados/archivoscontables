@@ -47,7 +47,21 @@ class MemoCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $$downloadPdf)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)  
             // En la página de detalle (cuando ves un Memo individual):
-            ->remove(Crud::PAGE_DETAIL, Action::EDIT) 
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT)
+
+            // Configura las acciones en la página de creación (Crud::PAGE_NEW)
+        ->update(Crud::PAGE_NEW, Action::SAVE_AND_RETURN, function (Action $action) {
+            return $action->setLabel('Crear'); // Cambia el nombre a "Crear"
+        })
+        ->update(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER, function (Action $action) {
+            return $action->setLabel('Crear y añadir otro'); // Cambia el nombre a "Crear y añadir otro"
+        })
+        ->add(Crud::PAGE_NEW, Action::INDEX)
+        ->update(Crud::PAGE_NEW, Action::INDEX, function (Action $action) {
+            return $action
+                ->setLabel('Cancelar')
+                ->setCssClass('btn-custom-cancel');
+        });
            
         ;
     }
@@ -55,6 +69,14 @@ class MemoCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
+        IdField::new('id', 'Nro de memo')
+            ->onlyOnIndex(),
+
+        AssociationField::new('usuario', 'Cliente')
+            ->setFormTypeOption('placeholder', 'Seleccionar')
+            ->setFormTypeOption('choice_label', 'nombre')
+            ->setColumns(4),
+
         DateField::new('createdAt', 'Fecha de emisión')
             ->setFormat('dd/MM/yyyy')
             ->setFormTypeOption('data', new \DateTime()) // 👈 Valor por defecto
@@ -69,11 +91,6 @@ class MemoCrudController extends AbstractCrudController
                 ])
                 ->setFormTypeOption('placeholder', 'Seleccionar')
                 ->setColumns(2), 
-
-            AssociationField::new('usuario', 'Usuario')
-            ->setFormTypeOption('placeholder', 'Seleccionar')
-                ->setFormTypeOption('choice_label', 'nombre')
-                ->setColumns(4),
                         
             TextField::new('pdfDownloadLink', 'Descarga')
                 ->setTemplatePath('admin/fields/pdf_column.html.twig')
