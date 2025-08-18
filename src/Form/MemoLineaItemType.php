@@ -12,6 +12,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints\Date;
+
 
 class MemoLineaItemType extends AbstractType
 {
@@ -38,17 +40,18 @@ class MemoLineaItemType extends AbstractType
                 'format' => 'MM/yyyy',
                 'html5' => false,
                 'label' => 'Periodo *',
-                'help' => 'Ingrese el mes y año en formato MM/AAAA (ej: 02/2023)',
+                'help' => 'Ingrese el mes y año en formato MM/AAAA (ej: 02/2025)',
                 'help_attr' => [
                     'class' => 'text-muted small' // Clases CSS opcionales
                 ],
                 'attr' => [
                     'placeholder' => 'MM/AAAA',
-                    'class' => 'date-picker'
+                    'class' => 'form-control date-picker' 
                 ],
                 'required' => true, // <--- Esto es clave
                 'model_timezone' => 'America/Argentina/Cordoba', // O la zona horaria de tu aplicación
                 'view_timezone' => 'America/Argentina/Cordoba',  // O la zona horaria de tu aplicación
+                'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
             ]);
 
     }
