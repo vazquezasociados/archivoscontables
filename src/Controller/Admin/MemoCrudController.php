@@ -72,7 +72,7 @@ class MemoCrudController extends AbstractCrudController
         IdField::new('id', 'Nro de memo')
             ->onlyOnIndex(),
 
-        AssociationField::new('usuario', 'Cliente')
+        AssociationField::new('usuario', 'Clientes')
             ->setFormTypeOption('placeholder', 'Seleccionar')
             ->setFormTypeOption('choice_label', 'nombre')
             ->setColumns(4),

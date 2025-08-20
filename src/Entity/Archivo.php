@@ -324,18 +324,6 @@ class Archivo
 
         return $this;
     }
-
-    // public function getUrlCompleta(): ?string
-    // {
-    //     if (!$this->getNombreArchivo()) {
-    //         return null;
-    //     }
-    //     // dd('Estoy aqui');
-    //     // En un contexto de controlador usarías RequestStack
-    //     // Pero en la entidad usamos este enfoque:
-    //     $appUrl = $_ENV['APP_URL'] ?? '';
-    //     return rtrim($appUrl, '/') . '/uploads/archivos_pdf/' . $this->getNombreArchivo();
-    // }
     
     public function getUrlCompleta(): ?string
     {
@@ -344,6 +332,9 @@ class Archivo
         return rtrim($baseUrl, '/') . '/descargar/' . $this->getId();
     }
 
-
+    public function getEstadoExpira(): string
+    {
+        return $this->expira ? 'Expira' : 'No expira';
+    }
 
 }

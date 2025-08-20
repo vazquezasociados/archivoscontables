@@ -84,3 +84,27 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDynamicSearch();
 });
 //== Fin Buscador en tiempo real==//
+
+//== Js para mostrar fecha expira o no ==//
+document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.querySelector('.js-expira-toggle');
+    const fecha = document.querySelector('.js-expira-field');
+
+    if (!toggle || !fecha) {
+        return; // No estamos en el form, salimos sin error
+    }
+
+    const fechaGroup = fecha.closest('.form-group');
+
+    function updateVisibility() {
+        if (toggle.checked) {
+            fechaGroup.style.display = '';
+        } else {
+            fechaGroup.style.display = 'none';
+        }
+    }
+
+    toggle.addEventListener('change', updateVisibility);
+    updateVisibility(); // inicial
+});
+

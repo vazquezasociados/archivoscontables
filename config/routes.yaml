@@ -14,3 +14,7 @@ app_redirect_to_login:
     defaults:
         path: /login
         permanent: true
+
+archivo_index:
+    path: /admin/archivo
+    controller: App\Controller\Admin\ArchivoCrudController::index

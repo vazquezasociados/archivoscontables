@@ -23,7 +23,8 @@ security:
                 check_path: app_login
                 enable_csrf: true
                 use_referer: true
-                default_target_path: /admin/archivo  # Redirige al dashboard de EasyAdmin tras login
+                success_handler: App\Security\LoginSuccessHandler
+                # default_target_path: /admin/archivo  # Redirige al dashboard de EasyAdmin tras login
             logout:
                 path: app_logout
                 target: app_login  # Redirección al login tras logout

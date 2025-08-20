@@ -50,7 +50,9 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::subMenu('Memos', 'fa-solid fa-book')->setSubItems([
                 MenuItem::linkToCrud('listado de memos', '', Memo::class),
                 MenuItem::linkToCrud('Items', '', Item::class),
-            ]);
+            ])
+            ;
+
             yield MenuItem::subMenu('Archivos', 'fa-solid fa-folder-open')->setSubItems([
                 MenuItem::linkToCrud('Lista de rchivos', '', Archivo::class),
                 MenuItem::linkToCrud('Categorías', '', Categoria::class),

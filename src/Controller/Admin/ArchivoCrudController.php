@@ -2,11 +2,11 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\User;
 
 use App\Entity\Archivo;
 use Doctrine\ORM\QueryBuilder;
 use App\Repository\UserRepository;
+use App\Repository\ArchivoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Vich\UploaderBundle\Form\Type\VichFileType;
@@ -36,6 +36,7 @@ class ArchivoCrudController extends AbstractCrudController
     public function __construct(
         private Security $security,
         private UserRepository $userRepository,
+        private ArchivoRepository $archivoRepository,
         private RequestStack $requestStack,
         private string $appUrl
         
@@ -126,26 +127,22 @@ class ArchivoCrudController extends AbstractCrudController
     }
             
 
-    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
-    {
-        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+    public function createIndexQueryBuilder(
+        SearchDto $searchDto,
+        EntityDto $entityDto,
+        FieldCollection $fields,
+        FilterCollection $filters
+    ): QueryBuilder {
+        $user = $this->getUser();
+        $request = $this->getContext()?->getRequest();
+        $clienteId = $request && $request->query->has('clienteId')
+            ? (int) $request->query->get('clienteId')
+            : null;
 
-        // Si no es admin, mostrar solo archivos asignados al usuario actual
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            $qb->andWhere('entity.usuario_cliente_asignado = :user')
-                ->setParameter('user', $this->getUser());
-        } else {
-            // Si es admin y hay un parámetro clienteId, filtrar por ese cliente
-            $request = $this->getContext()?->getRequest();
-            if ($request && $request->query->has('clienteId')) {
-                $clienteId = $request->query->get('clienteId');
-                $qb->andWhere('entity.usuario_cliente_asignado = :clienteId')
-                   ->setParameter('clienteId', $clienteId);
-            }
-        }
-
-        return $qb;
+        // Acá delegamos al repo
+        return $this->archivoRepository->findArchivosVisiblesParaUser($user, $clienteId);
     }
+
     
 
 
@@ -186,7 +183,20 @@ class ArchivoCrudController extends AbstractCrudController
                     ->setCustomOption(IntegerField::OPTION_THOUSANDS_SEPARATOR, ',')
                     ->setColumns(2),
 
+                TextField::new('estadoExpira', 'Estado')
+                    ->onlyOnIndex()
+                    ->formatValue(function ($value, $entity) {
+                        if ($entity->isExpira()) {
+                            // si expira, muestro la fecha también
+                            $fecha = $entity->getFechaExpira()?->format('d/m/Y');
+                            return sprintf('❌ Expira (%s)', $fecha ?? 'sin fecha');
+                        }
+                        return '✅ Nunca expira';
+                    }),
+
+
             ];
+
         }
 
         // Para administradores, mantener tu configuración completa original
@@ -226,12 +236,7 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setCustomOption(IntegerField::OPTION_NUMBER_FORMAT, '%.2f KB')
                 ->setCustomOption(IntegerField::OPTION_THOUSANDS_SEPARATOR, ',')
                 ->setColumns(2),
-
-            DateField::new('fecha_expira', 'Fecha de expiración')
-                ->setFormat('dd/MM/yyyy')
-                ->setFormTypeOption('data', new \DateTime())                     
-                ->setColumns(2),
-            
+                        
             // Mostrar solo el nombre del usuario en el index
             TextField::new('usuario_alta.nombre', 'Subido por')
                 ->onlyOnIndex(),
@@ -257,9 +262,28 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setFormTypeOption('choice_label', 'nombre')
                 ->setRequired(false)
                 ->renderAsNativeWidget()
+                ->setColumns(4)
+                ->onlyOnForms(),
+
+
+            TextField::new('estadoExpira', 'Estado')
+                ->onlyOnIndex()
+                ->formatValue(function ($value, $entity) {
+                    return $entity->isExpira() ? '❌ Expira' : '✅ Nunca expira';
+                }), 
+
+            BooleanField::new('expira', '¿Tiene fecha de expiración?')
+                ->onlyOnForms()
                 ->setColumns(2)
-                ->onlyOnForms(), 
-                     
+                ->setFormTypeOption('attr', ['class' => 'js-expira-toggle']), 
+
+            DateField::new('fecha_expira', 'Fecha de expiración')
+                ->setFormat('dd/MM/yyyy')
+                ->onlyOnForms()
+                ->setFormTypeOption('required', false)
+                ->setColumns(6)
+                ->setFormTypeOption('attr', ['class' => 'js-expira-field']),
+
             TextEditorField::new('descripcion', 'Descripción')
                 ->onlyOnForms(),
            
