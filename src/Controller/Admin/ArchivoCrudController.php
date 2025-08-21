@@ -96,7 +96,7 @@ class ArchivoCrudController extends AbstractCrudController
         
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX,  $title)
-            ->setPageTitle(Crud::PAGE_NEW, 'Subir nuevo archivo')
+            ->setPageTitle(Crud::PAGE_NEW, 'Subir Nuevo Archivo')
             ->setPaginatorPageSize(10)
             // ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
             // ->overrideTemplate('crud/edit', 'admin/archivo/edit.html.twig')
@@ -157,7 +157,7 @@ class ArchivoCrudController extends AbstractCrudController
                     ->setColumns(2)
                     ->onlyOnIndex(),
 
-                TextField::new('titulo', 'Titulo')
+                TextField::new('titulo', 'Título')
                     ->setColumns(4)
                     ->formatValue(function ($value, $entity) {
                         if (!$entity instanceof \App\Entity\Archivo || !$entity->getNombreArchivo()) {
@@ -259,18 +259,28 @@ class ArchivoCrudController extends AbstractCrudController
                 ->onlyOnForms(),
 
             AssociationField::new('categoria', 'Categoría')
-                ->setFormTypeOption('choice_label', 'nombre')
+                ->setFormTypeOption('choice_label', 'Nombre')
                 ->setRequired(false)
                 ->renderAsNativeWidget()
                 ->setColumns(4)
                 ->onlyOnForms(),
 
-
             TextField::new('estadoExpira', 'Estado')
-                ->onlyOnIndex()
-                ->formatValue(function ($value, $entity) {
-                    return $entity->isExpira() ? '❌ Expira' : '✅ Nunca expira';
-                }), 
+                    ->onlyOnIndex()
+                    ->formatValue(function ($value, $entity) {
+                        if ($entity->isExpira()) {
+                            // si expira, muestro la fecha también
+                            $fecha = $entity->getFechaExpira()?->format('d/m/Y');
+                            return sprintf('❌ Expira (%s)', $fecha ?? 'sin fecha');
+                        }
+                        return '✅ Nunca expira';
+                    }),
+
+ //           TextField::new('estadoExpira', 'Estado')
+ //             ->onlyOnIndex()
+ //               ->formatValue(function ($value, $entity) {
+ //                   return $entity->isExpira() ? '❌ Expira' : '✅ Nunca expira';
+ //               }), 
 
             BooleanField::new('expira', '¿Tiene fecha de expiración?')
                 ->onlyOnForms()

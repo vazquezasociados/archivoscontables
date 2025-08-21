@@ -18,7 +18,7 @@ class ItemCrudController extends AbstractCrudController
     {
         return [
             // IdField::new('id'),
-            TextField::new('descripcion'),
+            TextField::new('descripcion','Descripción'),
         ];
     }
 

@@ -48,13 +48,13 @@ class DashboardController extends AbstractDashboardController
     {
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::subMenu('Memos', 'fa-solid fa-book')->setSubItems([
-                MenuItem::linkToCrud('listado de memos', '', Memo::class),
-                MenuItem::linkToCrud('Items', '', Item::class),
+                MenuItem::linkToCrud('Listado de memos', '', Memo::class),
+                MenuItem::linkToCrud('Ítems', '', Item::class),
             ])
             ;
 
             yield MenuItem::subMenu('Archivos', 'fa-solid fa-folder-open')->setSubItems([
-                MenuItem::linkToCrud('Lista de rchivos', '', Archivo::class),
+                MenuItem::linkToCrud('Lista de archivos', '', Archivo::class),
                 MenuItem::linkToCrud('Categorías', '', Categoria::class),
             ]);
             yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);

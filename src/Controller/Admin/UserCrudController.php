@@ -100,7 +100,7 @@ class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         
-        $nombre = TextField::new('nombre', 'Nombre del cliente')
+        $nombre = TextField::new('nombre', 'Nombre del Cliente')
             ->setColumns(3);
         $nombreUsuario = TextField::new('nombreUsuario','cuil/cuit')
             ->setFormType(TextType::class)  // Fuerza tipo texto
@@ -141,7 +141,7 @@ class UserCrudController extends AbstractCrudController
 
         $email = TextField::new('email', 'Email')
             ->setColumns(3);
-        $password  = TextField::new('plainPassword', 'password')
+        $password  = TextField::new('plainPassword', 'Password')
             ->setColumns(3)
             ->setFormType(PasswordType::class)
             ->setRequired(false)->onlyOnForms()
@@ -149,11 +149,11 @@ class UserCrudController extends AbstractCrudController
 
    
         // $maxCarga = IntegerField::new('maxCarga', 'Carga Máxima')->hideOnIndex();
-        $roles = ChoiceField::new('roles', 'roles')
+        $roles = ChoiceField::new('roles', 'Roles')
             ->setChoices($this->roles)
             ->allowMultipleChoices(true)
             ->setColumns(4);
-        $roles2 = ChoiceField::new('roles', 'roles')
+        $roles2 = ChoiceField::new('roles', 'Roles')
             ->onlyOnIndex()->renderAsBadges()
             ->setChoices($this->rolesComplete);
         $fechaAlta = DateField::new('createdAt', 'Fecha Alta')

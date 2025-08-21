@@ -69,7 +69,7 @@ class MemoCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-        IdField::new('id', 'Nro de memo')
+        IdField::new('id', 'Nro. de memo')
             ->onlyOnIndex(),
 
         AssociationField::new('usuario', 'Clientes')
