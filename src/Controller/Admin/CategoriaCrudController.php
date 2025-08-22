@@ -17,13 +17,13 @@ class CategoriaCrudController extends AbstractCrudController
         return Categoria::class;
     }
 
-     public function configureCrud(Crud $crud): Crud
+    public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Categorías')
             // ->setPageTitle(Crud::PAGE_NEW, 'Subir nuevo archivo')
-            ->setPaginatorPageSize(10)
-           ;
+            ->setDefaultSort(['id' => 'DESC'])
+            ->setPaginatorPageSize(15);
     }
     
     public function configureFields(string $pageName): iterable

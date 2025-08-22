@@ -97,7 +97,8 @@ class ArchivoCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX,  $title)
             ->setPageTitle(Crud::PAGE_NEW, 'Subir Nuevo Archivo')
-            ->setPaginatorPageSize(10)
+            ->setDefaultSort(['id' => 'DESC'])
+            ->setPaginatorPageSize(15)
             // ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
             // ->overrideTemplate('crud/edit', 'admin/archivo/edit.html.twig')
            ;

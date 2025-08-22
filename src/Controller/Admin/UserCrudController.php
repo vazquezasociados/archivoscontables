@@ -61,8 +61,9 @@ class UserCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Clientes')
             ->setPageTitle(Crud::PAGE_DETAIL, 'Detalle del Cliente')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Cliente') 
-            ->setPaginatorPageSize(10);
+            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Cliente')
+            ->setDefaultSort(['id' => 'DESC']) 
+            ->setPaginatorPageSize(15);
             
     }
 
