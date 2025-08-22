@@ -133,17 +133,29 @@ class ArchivoCrudController extends AbstractCrudController
         FieldCollection $fields,
         FilterCollection $filters
     ): QueryBuilder {
+        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
         $user = $this->getUser();
         $request = $this->getContext()?->getRequest();
         $clienteId = $request && $request->query->has('clienteId')
             ? (int) $request->query->get('clienteId')
             : null;
 
-        // Acá delegamos al repo
-        return $this->archivoRepository->findArchivosVisiblesParaUser($user, $clienteId);
+        if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            $qb
+                ->andWhere('entity.usuario_cliente_asignado = :user')
+                ->setParameter('user', $user)
+                ->andWhere('entity.expira = false OR (entity.expira = true AND entity.fecha_expira >= :hoy)')
+                ->setParameter('hoy', new \DateTimeImmutable('today'));
+        } elseif ($clienteId) {
+            $qb
+                ->andWhere('entity.usuario_cliente_asignado = :clienteId')
+                ->setParameter('clienteId', $clienteId);
+        }
+
+        return $qb;
     }
 
-    
 
 
    public function configureFields(string $pageName): iterable
@@ -292,9 +304,10 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setFormType(VichFileType::class)
                 ->setFormTypeOptions([
                     'allow_delete' => false,
-                    'download_uri' => false,
+                    'download_uri' => true,
                 ])
-                ->onlyOnForms(),
+                ->onlyOnForms()
+                ->onlyWhenCreating(),
 
             BooleanField::new('permitido_publicar', 'Permitir descarga pública')
                 ->onlyOnForms()
@@ -311,10 +324,9 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setDisabled(true)
                 ->renderAsHtml(),
           
-
-            // BooleanField::new('notificar_cliente', 'Notificar al cliente')
-            //     ->onlyOnForms()
-            //     ->setFormTypeOption('mapped', false),
+            BooleanField::new('notificar_cliente', 'Notificar al cliente')
+                ->onlyOnForms()
+                ,
         ];
     }
 
