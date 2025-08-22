@@ -3,7 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Service\MailerService;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -30,9 +32,30 @@ class UserCrudController extends AbstractCrudController
         private UserPasswordHasherInterface $passwordEncoder,
         private AdminUrlGenerator $adminUrlGenerator,
         private UserRepository $userRepository,
+         private MailerService $mailerService
     
     ){}
-    
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof User) {
+            return;
+        }
+            // dd($this->mailerService);
+
+        // 👇 Lógica de envío de mail
+        if ($entityInstance->isEnviarCorreoBienvenido()) {
+            // dd( $entityInstance->getNombre());
+            
+            $this->mailerService->sendWelcomeEmail(
+                $entityInstance->getEmail(),
+                $entityInstance->getNombre() ?? 'Usuario'
+            );
+        }
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud

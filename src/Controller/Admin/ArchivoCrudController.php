@@ -310,8 +310,6 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setColumns(4)
                 ->setDisabled(true)
                 ->renderAsHtml(),
-
-
           
 
             // BooleanField::new('notificar_cliente', 'Notificar al cliente')
