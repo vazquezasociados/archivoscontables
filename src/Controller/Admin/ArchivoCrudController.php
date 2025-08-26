@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 
 use App\Entity\Archivo;
+use App\Service\MailerService;
 use Doctrine\ORM\QueryBuilder;
 use App\Repository\UserRepository;
 use App\Repository\ArchivoRepository;
@@ -38,7 +39,8 @@ class ArchivoCrudController extends AbstractCrudController
         private UserRepository $userRepository,
         private ArchivoRepository $archivoRepository,
         private RequestStack $requestStack,
-        private string $appUrl
+        private string $appUrl,
+        private MailerService $mailerService,
         
     ) {
         $this->appUrl = rtrim($appUrl, '/');
@@ -57,6 +59,10 @@ class ArchivoCrudController extends AbstractCrudController
         }
         
         parent::persistEntity($entityManager, $entityInstance);
+
+        if ($entityInstance->isNotificarCliente()) {
+                $this->mailerService->sendArchivoNotification($entityInstance);
+        }
     }
 
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -98,6 +104,7 @@ class ArchivoCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX,  $title)
             ->setPageTitle(Crud::PAGE_NEW, 'Subir Nuevo Archivo')
             ->setDefaultSort(['id' => 'DESC'])
+            ->setSearchFields(['titulo'])
             ->setPaginatorPageSize(15)
             // ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
             // ->overrideTemplate('crud/edit', 'admin/archivo/edit.html.twig')
@@ -116,48 +123,64 @@ class ArchivoCrudController extends AbstractCrudController
         return $actions;
     }
 
-    public function configureFilters(Filters $filters): Filters
-    {
-        if ($this->isGranted('ROLE_ADMIN')) {
-            $filters->add('usuario_cliente_asignado');
-            // $filters->add('titulo');
+    // public function configureFilters(Filters $filters): Filters
+    // {
+    //     if ($this->isGranted('ROLE_ADMIN')) {
+    //         $filters->add('usuario_cliente_asignado');
+    //         // $filters->add('titulo');
             
-        }
+    //     }
         
-        return $filters;
-    }
+    //     return $filters;
+    // }
             
-
     public function createIndexQueryBuilder(
         SearchDto $searchDto,
         EntityDto $entityDto,
         FieldCollection $fields,
         FilterCollection $filters
     ): QueryBuilder {
-        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
-
         $user = $this->getUser();
         $request = $this->getContext()?->getRequest();
         $clienteId = $request && $request->query->has('clienteId')
             ? (int) $request->query->get('clienteId')
             : null;
 
-        if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-            $qb
-                ->andWhere('entity.usuario_cliente_asignado = :user')
-                ->setParameter('user', $user)
-                ->andWhere('entity.expira = false OR (entity.expira = true AND entity.fecha_expira >= :hoy)')
-                ->setParameter('hoy', new \DateTimeImmutable('today'));
-        } elseif ($clienteId) {
-            $qb
-                ->andWhere('entity.usuario_cliente_asignado = :clienteId')
-                ->setParameter('clienteId', $clienteId);
-        }
+        // Obtener el término de búsqueda
+        $searchTerm = $searchDto->getQuery();
 
-        return $qb;
+        // Acá delegamos al repo con el término de búsqueda
+        return $this->archivoRepository->findArchivosVisiblesParaUser($user, $clienteId, $searchTerm);
     }
 
+    // public function createIndexQueryBuilder(
+    //     SearchDto $searchDto,
+    //     EntityDto $entityDto,
+    //     FieldCollection $fields,
+    //     FilterCollection $filters
+    // ): QueryBuilder {
+    //     $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
+    //     $user = $this->getUser();
+    //     $request = $this->getContext()?->getRequest();
+    //     $clienteId = $request && $request->query->has('clienteId')
+    //         ? (int) $request->query->get('clienteId')
+    //         : null;
+
+    //     if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+    //         $qb
+    //             ->andWhere('entity.usuario_cliente_asignado = :user')
+    //             ->setParameter('user', $user)
+    //             ->andWhere('entity.expira = false OR (entity.expira = true AND entity.fecha_expira >= :hoy)')
+    //             ->setParameter('hoy', new \DateTimeImmutable('today'));
+    //     } elseif ($clienteId) {
+    //         $qb
+    //             ->andWhere('entity.usuario_cliente_asignado = :clienteId')
+    //             ->setParameter('clienteId', $clienteId);
+    //     }
+
+    //     return $qb;
+    // }
 
    public function configureFields(string $pageName): iterable
     {
@@ -169,6 +192,11 @@ class ArchivoCrudController extends AbstractCrudController
                     ->setFormTypeOption('data', new \DateTime())                     
                     ->setColumns(2)
                     ->onlyOnIndex(),
+                    
+                TextField::new('dummy', 'Tipo')
+                ->onlyOnIndex()
+                ->setValue('📄 PDF') // Valor estático
+                ->setSortable(false), 
 
                 TextField::new('titulo', 'Título')
                     ->setColumns(4)
@@ -221,7 +249,12 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setColumns(2)
                 ->onlyOnIndex(),
 
-            TextField::new('titulo', 'Titulo')
+            TextField::new('dummy', 'Tipo')
+                ->onlyOnIndex()
+                ->setValue('📄 PDF') // Valor estático
+                ->setSortable(false),
+
+            TextField::new('titulo', 'titulo')
                 ->setColumns(4)
                 ->formatValue(function ($value, $entity) {
                     if (!$entity instanceof \App\Entity\Archivo || !$entity->getNombreArchivo()) {
@@ -239,7 +272,6 @@ class ArchivoCrudController extends AbstractCrudController
                     );
                 })
                 ->renderAsHtml(),
-            
 
             IntegerField::new('tamaño', 'Tamaño (KB)')
                 ->onlyOnIndex()
@@ -253,7 +285,6 @@ class ArchivoCrudController extends AbstractCrudController
             // Mostrar solo el nombre del usuario en el index
             TextField::new('usuario_alta.nombre', 'Subido por')
                 ->onlyOnIndex(),
-
  
             TextField::new('asignadoTexto', 'Asignado')
                 ->onlyOnIndex()
@@ -288,12 +319,6 @@ class ArchivoCrudController extends AbstractCrudController
                         }
                         return '✅ Nunca expira';
                     }),
-
- //           TextField::new('estadoExpira', 'Estado')
- //             ->onlyOnIndex()
- //               ->formatValue(function ($value, $entity) {
- //                   return $entity->isExpira() ? '❌ Expira' : '✅ Nunca expira';
- //               }), 
 
             BooleanField::new('expira', '¿Tiene fecha de expiración?')
                 ->onlyOnForms()
