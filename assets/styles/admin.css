@@ -176,10 +176,6 @@ th.header-for-field-text span {
     border-radius: 4px;
     transition: background-color 0.3s ease;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> UXUI3
 .btn-primary:hover {
     background-color: #b8308e !important;
 }
@@ -204,9 +200,4 @@ button.btn.btn-link.field-collection-add-button {
     border-radius: 0px;
     text-align: center;
     width: 100%;
-<<<<<<< HEAD
 }
-=======
-}
-
->>>>>>> UXUI3
