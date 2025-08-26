@@ -42,12 +42,6 @@ class Archivo
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $url_publica = null;
 
-    #[ORM\Column]
-    private ?bool $ocultar_nuevo = null;
-
-    #[ORM\Column]
-    private ?bool $ocultar_viejo = null;
-
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $fecha_modificado = null;
 
@@ -76,13 +70,14 @@ class Archivo
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $mimeType = null;
 
+    #[ORM\Column]
+    private ?bool $notificar_cliente = null;
+
     public function __construct()
     {
         $this->asignado = false;
-        $this->permitido_publicar = false;
+        $this->permitido_publicar = true;
         $this->expira = false;
-        $this->ocultar_nuevo = false;
-        $this->ocultar_viejo = false;
     }
 
     /**
@@ -187,38 +182,17 @@ class Archivo
         return $this;
     }
 
-    public function getUrlPublica(): ?string
-    {
-        return $this->url_publica;
-    }
+    // public function getUrlPublica(): ?string
+    // {
+    //     if (!$this->nombre_archivo) {
+    //         return null;
+    //     }
+    //     return rtrim($_ENV['APP_URL'] ?? '', '/') . '/uploads/archivos_pdf/' . $this->nombre_archivo;
+    // }
 
     public function setUrlPublica(?string $url_publica): static
     {
         $this->url_publica = $url_publica;
-
-        return $this;
-    }
-
-    public function isOcultarNuevo(): ?bool
-    {
-        return $this->ocultar_nuevo;
-    }
-
-    public function setOcultarNuevo(bool $ocultar_nuevo): static
-    {
-        $this->ocultar_nuevo = $ocultar_nuevo;
-
-        return $this;
-    }
-
-    public function isOcultarViejo(): ?bool
-    {
-        return $this->ocultar_viejo;
-    }
-
-    public function setOcultarViejo(bool $ocultar_viejo): static
-    {
-        $this->ocultar_viejo = $ocultar_viejo;
 
         return $this;
     }
@@ -321,4 +295,29 @@ class Archivo
 
         return $this;
     }
+    
+    public function getUrlCompleta(): ?string
+    {
+        // Usa la variable de entorno APP_URL para generar la URL completa
+        $baseUrl = $_ENV['APP_URL'] ?? '';
+        return rtrim($baseUrl, '/') . '/descargar/' . $this->getId();
+    }
+
+    public function getEstadoExpira(): string
+    {
+        return $this->expira ? 'Expira' : 'No expira';
+    }
+
+    public function isNotificarCliente(): ?bool
+    {
+        return $this->notificar_cliente;
+    }
+
+    public function setNotificarCliente(bool $notificar_cliente): static
+    {
+        $this->notificar_cliente = $notificar_cliente;
+
+        return $this;
+    }
+
 }

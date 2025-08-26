@@ -2,34 +2,49 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Archivo;
 
+use App\Entity\Archivo;
+use App\Service\MailerService;
 use Doctrine\ORM\QueryBuilder;
+use App\Repository\UserRepository;
+use App\Repository\ArchivoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use Symfony\Component\HttpFoundation\RequestStack;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
-
 class ArchivoCrudController extends AbstractCrudController
 {
     public function __construct(
-        private Security $security
-    ) {}
+        private Security $security,
+        private UserRepository $userRepository,
+        private ArchivoRepository $archivoRepository,
+        private RequestStack $requestStack,
+        private string $appUrl,
+        private MailerService $mailerService,
+        
+    ) {
+        $this->appUrl = rtrim($appUrl, '/');
+    }
     
     public static function getEntityFqcn(): string
     {
@@ -40,17 +55,57 @@ class ArchivoCrudController extends AbstractCrudController
         // Asignar usuario automáticamente
         if ($entityInstance instanceof Archivo && !$entityInstance->getUsuarioAlta()) {
             $entityInstance->setUsuarioAlta($this->security->getUser());
+             // No tocar permitido_publicar aquí, lo decido manualmente
         }
         
         parent::persistEntity($entityManager, $entityInstance);
+
+        if ($entityInstance->isNotificarCliente()) {
+                $this->mailerService->sendArchivoNotification($entityInstance);
+        }
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        // Tampoco tocar permitido_publicar aquí
+        parent::updateEntity($entityManager, $entityInstance);
     }
 
     public function configureCrud(Crud $crud): Crud
-    {
+    {   
+         
+        $title = 'Listado de Archivos';
+        $request = $this->requestStack->getCurrentRequest();
+
+        // Priorizar el 'clienteId' si viene de la acción de usuario
+        $clienteIdParam = $request->query->get('clienteId');
+        $filteredUserId = null;
+
+        if ($clienteIdParam) {
+            $filteredUserId = $clienteIdParam;
+        } elseif ($request && $request->query->has('filters')) {
+            // Si no hay 'clienteId' directo, buscar en los filtros de EasyAdmin
+            $filters = $request->query->all('filters');
+            if (isset($filters['usuario_cliente_asignado']['value']) && !empty($filters['usuario_cliente_asignado']['value'])) {
+                $filteredUserId = $filters['usuario_cliente_asignado']['value'];
+            }
+        }
+
+        // Si se encontró un ID de usuario por cualquier método, personalizar el título
+        if ($filteredUserId) {
+            $user = $this->userRepository->find($filteredUserId);
+            if ($user) {
+                $title = sprintf('📁 Archivos de %s', $user->getNombre());
+            }
+        }
+        
+        
         return $crud
-            ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Archivos')
-            ->setPageTitle(Crud::PAGE_NEW, 'Subir nuevo archivo')
-            ->setPaginatorPageSize(10)
+            ->setPageTitle(Crud::PAGE_INDEX,  $title)
+            ->setPageTitle(Crud::PAGE_NEW, 'Subir Nuevo Archivo')
+            ->setDefaultSort(['id' => 'DESC'])
+            ->setSearchFields(['titulo'])
+            ->setPaginatorPageSize(15)
             // ->overrideTemplate('crud/new', 'admin/archivo/new.html.twig')
             // ->overrideTemplate('crud/edit', 'admin/archivo/edit.html.twig')
            ;
@@ -58,39 +113,74 @@ class ArchivoCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        
-        // Si no es admin, remover todas las acciones excepto visualización
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            return $actions
-                // Remover botón "Crear nuevo"
-                ->remove(Crud::PAGE_INDEX, Action::NEW)
-                // Remover acciones de cada fila
-                ->remove(Crud::PAGE_INDEX, Action::EDIT)
-                ->remove(Crud::PAGE_INDEX, Action::DELETE);
-        }
 
-        // Para administradores, mantener tu configuración original
-        return $actions
-            // Cambiar texto del botón "Nuevo"
-            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
-                return $action->setLabel('Subir Archivo');
-            });
+        $actions = $actions
+        ->setPermission(Action::NEW, 'ROLE_ADMIN')
+        ->setPermission(Action::EDIT, 'ROLE_ADMIN')
+        ->setPermission(Action::DELETE, 'ROLE_ADMIN')
+        ->setPermission(Action::DETAIL, 'ROLE_ADMIN')
+        ->update(Crud::PAGE_INDEX, Action::NEW, fn(Action $action) => $action->setLabel('Subir Archivo'));        
+        return $actions;
+    }
+
+    // public function configureFilters(Filters $filters): Filters
+    // {
+    //     if ($this->isGranted('ROLE_ADMIN')) {
+    //         $filters->add('usuario_cliente_asignado');
+    //         // $filters->add('titulo');
             
-    }
-    
-    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
-    {
-        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+    //     }
+        
+    //     return $filters;
+    // }
+            
+    public function createIndexQueryBuilder(
+        SearchDto $searchDto,
+        EntityDto $entityDto,
+        FieldCollection $fields,
+        FilterCollection $filters
+    ): QueryBuilder {
+        $user = $this->getUser();
+        $request = $this->getContext()?->getRequest();
+        $clienteId = $request && $request->query->has('clienteId')
+            ? (int) $request->query->get('clienteId')
+            : null;
 
-        // Si no es admin, mostrar solo archivos asignados al usuario actual
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            $qb->andWhere('entity.usuario_cliente_asignado = :user')
-                ->setParameter('user', $this->getUser());
-        }
+        // Obtener el término de búsqueda
+        $searchTerm = $searchDto->getQuery();
 
-        return $qb;
+        // Acá delegamos al repo con el término de búsqueda
+        return $this->archivoRepository->findArchivosVisiblesParaUser($user, $clienteId, $searchTerm);
     }
-    
+
+    // public function createIndexQueryBuilder(
+    //     SearchDto $searchDto,
+    //     EntityDto $entityDto,
+    //     FieldCollection $fields,
+    //     FilterCollection $filters
+    // ): QueryBuilder {
+    //     $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+    //     $user = $this->getUser();
+    //     $request = $this->getContext()?->getRequest();
+    //     $clienteId = $request && $request->query->has('clienteId')
+    //         ? (int) $request->query->get('clienteId')
+    //         : null;
+
+    //     if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+    //         $qb
+    //             ->andWhere('entity.usuario_cliente_asignado = :user')
+    //             ->setParameter('user', $user)
+    //             ->andWhere('entity.expira = false OR (entity.expira = true AND entity.fecha_expira >= :hoy)')
+    //             ->setParameter('hoy', new \DateTimeImmutable('today'));
+    //     } elseif ($clienteId) {
+    //         $qb
+    //             ->andWhere('entity.usuario_cliente_asignado = :clienteId')
+    //             ->setParameter('clienteId', $clienteId);
+    //     }
+
+    //     return $qb;
+    // }
 
    public function configureFields(string $pageName): iterable
     {
@@ -102,8 +192,13 @@ class ArchivoCrudController extends AbstractCrudController
                     ->setFormTypeOption('data', new \DateTime())                     
                     ->setColumns(2)
                     ->onlyOnIndex(),
+                    
+                TextField::new('dummy', 'Tipo')
+                ->onlyOnIndex()
+                ->setValue('📄 PDF') // Valor estático
+                ->setSortable(false), 
 
-                TextField::new('titulo', 'Titulo')
+                TextField::new('titulo', 'Título')
                     ->setColumns(4)
                     ->formatValue(function ($value, $entity) {
                         if (!$entity instanceof \App\Entity\Archivo || !$entity->getNombreArchivo()) {
@@ -114,10 +209,9 @@ class ArchivoCrudController extends AbstractCrudController
                         $ruta = '/uploads/archivos_pdf/' . $entity->getNombreArchivo();
 
                         return sprintf(
-                            '<a href="%s" download style="text-decoration: underline; color: #007bff;">%s</a>',
-                            $ruta,
-                            htmlspecialchars($value)
-                        );
+                            '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
+                            htmlspecialchars($ruta), 
+                            htmlspecialchars($value));
                     })
                     ->renderAsHtml(),
 
@@ -130,7 +224,20 @@ class ArchivoCrudController extends AbstractCrudController
                     ->setCustomOption(IntegerField::OPTION_THOUSANDS_SEPARATOR, ',')
                     ->setColumns(2),
 
+                TextField::new('estadoExpira', 'Estado')
+                    ->onlyOnIndex()
+                    ->formatValue(function ($value, $entity) {
+                        if ($entity->isExpira()) {
+                            // si expira, muestro la fecha también
+                            $fecha = $entity->getFechaExpira()?->format('d/m/Y');
+                            return sprintf('❌ Expira (%s)', $fecha ?? 'sin fecha');
+                        }
+                        return '✅ Nunca expira';
+                    }),
+
+
             ];
+
         }
 
         // Para administradores, mantener tu configuración completa original
@@ -142,7 +249,12 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setColumns(2)
                 ->onlyOnIndex(),
 
-            TextField::new('titulo', 'Titulo')
+            TextField::new('dummy', 'Tipo')
+                ->onlyOnIndex()
+                ->setValue('📄 PDF') // Valor estático
+                ->setSortable(false),
+
+            TextField::new('titulo', 'titulo')
                 ->setColumns(4)
                 ->formatValue(function ($value, $entity) {
                     if (!$entity instanceof \App\Entity\Archivo || !$entity->getNombreArchivo()) {
@@ -152,14 +264,14 @@ class ArchivoCrudController extends AbstractCrudController
                     // Ruta pública donde se guardan los archivos (ajustá según tu config de VichUploader)
                     $ruta = '/uploads/archivos_pdf/' . $entity->getNombreArchivo();
 
+                 
                     return sprintf(
-                        '<a href="%s" download style="text-decoration: underline; color: #007bff;">%s</a>',
-                        $ruta,
+                        '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
+                        htmlspecialchars($ruta),
                         htmlspecialchars($value)
                     );
                 })
                 ->renderAsHtml(),
-            
 
             IntegerField::new('tamaño', 'Tamaño (KB)')
                 ->onlyOnIndex()
@@ -169,16 +281,10 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setCustomOption(IntegerField::OPTION_NUMBER_FORMAT, '%.2f KB')
                 ->setCustomOption(IntegerField::OPTION_THOUSANDS_SEPARATOR, ',')
                 ->setColumns(2),
-
-            DateField::new('fecha_expira', 'Fecha de expiración')
-                ->setFormat('dd/MM/yyyy')
-                ->setFormTypeOption('data', new \DateTime())                     
-                ->setColumns(2),
-            
+                        
             // Mostrar solo el nombre del usuario en el index
             TextField::new('usuario_alta.nombre', 'Subido por')
                 ->onlyOnIndex(),
-
  
             TextField::new('asignadoTexto', 'Asignado')
                 ->onlyOnIndex()
@@ -197,36 +303,69 @@ class ArchivoCrudController extends AbstractCrudController
                 ->onlyOnForms(),
 
             AssociationField::new('categoria', 'Categoría')
-                ->setFormTypeOption('choice_label', 'nombre')
+                ->setFormTypeOption('choice_label', 'Nombre')
                 ->setRequired(false)
                 ->renderAsNativeWidget()
+                ->setColumns(4)
+                ->onlyOnForms(),
+
+            TextField::new('estadoExpira', 'Estado')
+                    ->onlyOnIndex()
+                    ->formatValue(function ($value, $entity) {
+                        if ($entity->isExpira()) {
+                            // si expira, muestro la fecha también
+                            $fecha = $entity->getFechaExpira()?->format('d/m/Y');
+                            return sprintf('❌ Expira (%s)', $fecha ?? 'sin fecha');
+                        }
+                        return '✅ Nunca expira';
+                    }),
+
+            BooleanField::new('expira', '¿Tiene fecha de expiración?')
+                ->onlyOnForms()
                 ->setColumns(2)
-                ->onlyOnForms(), 
-                     
+                ->setFormTypeOption('attr', ['class' => 'js-expira-toggle']), 
+
+            DateField::new('fecha_expira', 'Fecha de expiración')
+                ->setFormat('dd/MM/yyyy')
+                ->onlyOnForms()
+                ->setFormTypeOption('required', false)
+                ->setColumns(6)
+                ->setFormTypeOption('attr', ['class' => 'js-expira-field']),
+
             TextEditorField::new('descripcion', 'Descripción')
                 ->onlyOnForms(),
            
             // Sección 4: Carga de archivo
-            TextField::new('archivoFile', 'link de descarga')
+            Field::new('archivoFile', 'Subir Archivo PDF')
                 ->setFormType(VichFileType::class)
                 ->setFormTypeOptions([
                     'allow_delete' => false,
-                    'download_uri' => false,
+                    'download_uri' => true,
                 ])
-                ->onlyOnForms(),
+                ->onlyOnForms()
+                ->onlyWhenCreating(),
 
-            // TextField::new('archivo')
-            //     ->onlyOnIndex(),
-
-            // Sección 3: Observaciones (checkboxes)
             BooleanField::new('permitido_publicar', 'Permitir descarga pública')
-                ->renderAsSwitch(false)
-                ->onlyOnForms(),
-            
+                ->onlyOnForms()
+                ->setFormTypeOption('attr', [
+                    'data-permitido-publicar' => 'true'
+                ]),
+
+            TextareaField::new('getUrlCompleta', 'URL publica')
+                ->formatValue(function ($value, $entity) {
+                    return sprintf('<a href="%s" target="_blank">%s</a>', $value, $entity->getNombreArchivo());
+                })
+                ->onlyOnForms()
+                ->setColumns(4)
+                ->setDisabled(true)
+                ->renderAsHtml(),
+          
             BooleanField::new('notificar_cliente', 'Notificar al cliente')
                 ->onlyOnForms()
-                ->setFormTypeOption('mapped', false),
+                ->setFormTypeOption('data', true)
+                ,
         ];
     }
+
    
 }

@@ -6,6 +6,11 @@
   --text-active: #ffffff; /* Nuevo: Color blanco para texto activo */
 
 }
+/*Accion ver archivo */
+.action-verArchivos {
+    margin-right: 5px;
+}
+/*Accion ver archivo */
 
 .menu-item-contents {
   padding: 10px 0px !important; /* Aumenta el padding */ 
@@ -88,6 +93,80 @@ th.header-for-field-text span {
     color: white !important;
 }
 
+
+
+/* == Estilos para el campo de búsqueda == */
+
+/*
+ * Contenedor principal de la búsqueda.
+ * Usa flexbox para alinear el label y el form-widget.
+ */
+.content-search {
+    display: flex;
+    align-items: center; /* Alinea los elementos verticalmente */
+    gap: 1rem; /* Añade un espacio entre el label y el input */
+}
+
+/*
+ * Estilo del label "Buscar".
+ * Ahora es el label el que tiene el borde y el padding.
+ */
+.content-search-label {
+    font-weight: bold;
+    color: #333;
+    border: #a9b8ce 1px solid;
+    border-radius: 4px;
+    padding: 0.375rem 0.75rem; /* Ajusta el padding para que el texto no se pegue al borde */
+    white-space: nowrap; /* Evita que el texto del label se rompa en varias líneas */
+}
+
+/*
+ * Contenedor del input (form-widget).
+ * Este contenedor ya no necesita los bordes, pero sí el flex-grow.
+ */
+.form-widget-search {
+    flex-grow: 1; /* Permite que el input ocupe el espacio restante */
+    display: flex;
+    align-items: center;
+}
+
+/*
+ * Estilo del input.
+ * Se quitan los bordes, el padding y el fondo para que el form-widget los gestione.
+ * El input ocupa todo el espacio de su contenedor.
+ */
+.form-widget-search input {
+    border: none !important;
+    background: transparent !important;
+    flex-grow: 1;
+    padding: 0;
+}
+
+/*
+ * Estilo para el ícono de búsqueda (si existe).
+ */
+.content-search-icon {
+    color: #333;
+    margin-right: 0.5rem;
+}
+
+/*
+ * Estilo de enfoque para el input.
+ * Se usa :focus-within en el contenedor `.form-widget`.
+ */
+.content-search:focus-within .content-search-label {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+}
+/*== Fin Estilo para buscador ==*/
+
+/*== Boton cancelar ==*/
+.btn-custom-cancel{
+    /* Ajusta el padding para que coincida con los otros botones */
+    padding: 10px 15px; 
+}
+/*== Boton cancelar ==*/
+
 /* ESTILOS POLLOS */
 .btn-primary {
     background-color: #d53aa6;
@@ -97,6 +176,10 @@ th.header-for-field-text span {
     border-radius: 4px;
     transition: background-color 0.3s ease;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> UXUI3
 .btn-primary:hover {
     background-color: #b8308e !important;
 }
@@ -121,4 +204,9 @@ button.btn.btn-link.field-collection-add-button {
     border-radius: 0px;
     text-align: center;
     width: 100%;
+<<<<<<< HEAD
 }
+=======
+}
+
+>>>>>>> UXUI3

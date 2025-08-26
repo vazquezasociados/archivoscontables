@@ -3,8 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Item;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 class ItemCrudController extends AbstractCrudController
 {
@@ -13,12 +14,18 @@ class ItemCrudController extends AbstractCrudController
         return Item::class;
     }
 
-    
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setDefaultSort(['id' => 'DESC'])
+            ->setPaginatorPageSize(15);
+    }
+
     public function configureFields(string $pageName): iterable
     {
         return [
             // IdField::new('id'),
-            TextField::new('descripcion'),
+            TextField::new('descripcion','Descripción'),
         ];
     }
 
