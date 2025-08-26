@@ -188,9 +188,6 @@ class UserCrudController extends AbstractCrudController
         }
         return[$nombre,$nombreUsuario,$email,$password,$direccion,$telefono,$activo,$bienvenido,
         $nombreContactoInterno,$roles, $roles2 ];
-
-
-
     }
 
 }
