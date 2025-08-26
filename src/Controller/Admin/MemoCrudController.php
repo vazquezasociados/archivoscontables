@@ -27,6 +27,7 @@ class MemoCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Memos')
             ->setPaginatorPageSize(10)
+            ->setSearchFields(['id', 'usuario.nombre', 'estado'])
             ->overrideTemplate('crud/detail', 'admin/memo/detail.html.twig');
     }
         // ¡Aquí es donde configuras los botones de acción!
@@ -63,7 +64,6 @@ class MemoCrudController extends AbstractCrudController
                 ->setCssClass('btn-custom-cancel');
         });
            
-        ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -72,10 +72,15 @@ class MemoCrudController extends AbstractCrudController
         IdField::new('id', 'Nro. de memo')
             ->onlyOnIndex(),
 
+        // Campo para mostrar en el índice (solo lectura)
+        TextField::new('usuario.nombre', 'Cliente')
+            ->onlyOnIndex(),
+
         AssociationField::new('usuario', 'Clientes')
             ->setFormTypeOption('placeholder', 'Seleccionar')
             ->setFormTypeOption('choice_label', 'nombre')
-            ->setColumns(4),
+            ->setColumns(4)
+            ->onlyOnForms(),
 
         DateField::new('createdAt', 'Fecha de emisión')
             ->setFormat('dd/MM/yyyy')

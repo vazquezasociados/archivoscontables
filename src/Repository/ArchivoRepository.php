@@ -18,26 +18,35 @@ class ArchivoRepository extends ServiceEntityRepository
         parent::__construct($registry, Archivo::class);
     }
 
-    // public function findArchivosVisiblesParaUser(User $user, ?int $clienteId = null): QueryBuilder
-    // {
-    //     $qb = $this->createQueryBuilder('a');
+    public function findArchivosVisiblesParaUser(
+        User $user, 
+        ?int $clienteId = null,
+        ?string $searchTerm = null): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('a');
 
-    //     if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-    //         // Usuarios comunes: solo archivos asignados a ellos + no expirados
-    //         $qb->andWhere('a.usuario_cliente_asignado = :user')
-    //         ->setParameter('user', $user)
-    //         ->andWhere('a.expira = false OR (a.expira = true AND a.fecha_expira >= :hoy)')
-    //         ->setParameter('hoy', new \DateTimeImmutable('today'));
-    //     } else {
-    //         // Admin: puede ver todo, o filtrar por cliente
-    //         if ($clienteId) {
-    //             $qb->andWhere('a.usuario_cliente_asignado = :clienteId')
-    //             ->setParameter('clienteId', $clienteId);
-    //         }
-    //     }
+        if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            // Usuarios comunes: solo archivos asignados a ellos + no expirados
+            $qb->andWhere('a.usuario_cliente_asignado = :user')
+            ->setParameter('user', $user)
+            ->andWhere('a.expira = false OR (a.expira = true AND a.fecha_expira >= :hoy)')
+            ->setParameter('hoy', new \DateTimeImmutable('today'));
+        } else {
+            // Admin: puede ver todo, o filtrar por cliente
+            if ($clienteId) {
+                $qb->andWhere('a.usuario_cliente_asignado = :clienteId')
+                ->setParameter('clienteId', $clienteId);
+            }
+        }
 
-    //     return $qb;
-    // }
+        // Añadir búsqueda si hay término
+        if ($searchTerm && strlen(trim($searchTerm)) > 0) {
+            $qb->andWhere('a.titulo LIKE :searchTerm')
+               ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        return $qb;
+    }
 
     //    /**
     //     * @return Archivo[] Returns an array of Archivo objects
