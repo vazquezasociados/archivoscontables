@@ -362,6 +362,7 @@ class ArchivoCrudController extends AbstractCrudController
           
             BooleanField::new('notificar_cliente', 'Notificar al cliente')
                 ->onlyOnForms()
+                ->setFormTypeOption('data', true)
                 ,
         ];
     }
