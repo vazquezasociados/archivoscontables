@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido - Vazquez Contadores</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+
+      --sidebar-bg: #ced8e0;
+      --sidebar-active: #34495e;
+      --sidebar-accent: #3498db;
+      --text-active: #ffffff;
+      /* Nuevo: Color blanco para texto activo */
+
+    }
+
+    /*Accion ver archivo */
+    .action-verArchivos {
+      margin-right: 5px;
+    }
+
+    /*Accion ver archivo */
+
+    .menu-item-contents {
+      padding: 10px 0px !important;
+      /* Aumenta el padding */
+    }
+
+    .sidebar {
+      background-color: var(--sidebar-bg) !important;
+    }
+
+    /* Ítem activo - texto e icono en blanco */
+    .sidebar .menu-item.active>a,
+    .sidebar .menu-item.active>a i {
+      color: var(--text-active) !important;
+    }
+
+    /* Estilo base del ítem activo */
+    .sidebar .menu-item.active {
+      background-color: var(--sidebar-active) !important;
+      border-left: 4px solid var(--sidebar-accent) !important;
+    }
+
+    /* Hover también en blanco (opcional) */
+    .sidebar .menu-item.active>a:hover,
+    .sidebar .menu-item.active>a:hover i {
+      color: var(--text-active) !important;
+      opacity: 0.9;
+    }
+
+    /* Estilo definitivo para headers de tabla en EasyAdmin */
+    table.table thead th {
+      background-color: #34495e !important;
+      color: white !important;
+      /* Texto blanco */
+      border-color: #34495e !important;
+      /* Borde consistente */
+    }
+
+    /* Garantiza texto blanco en todos estados */
+    table.table thead th,
+    table.table thead th a,
+    table.table thead th:hover,
+    table.table thead th:hover a,
+    table.table thead th:active,
+    table.table thead th:active a {
+      color: white !important;
+      text-decoration: none !important;
+    }
+
+    /* Iconos en headers (si existen) */
+    table.table thead th i {
+      color: white !important;
+      filter: brightness(0) invert(1);
+      /* Convierte íconos a blanco */
+    }
+
+    /* Color para el texto "Usuarios" */
+    .sidebar .menu-header .menu-item-label {
+      color: #2c3e50 !important;
+      /* Color oscuro */
+      /* font-weight: bold !important; */
+      font-size: 1rem !important;
+    }
+
+    /* En tu archivo assets/admin.css */
+    .field-collection-add-button {
+      transition: all 0.3s ease;
+      border-radius: 4px;
+
+    }
+
+    .field-collection-add-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Para cambiar el color del botón */
+    .btn-link.field-collection-add-button {
+      color: #d53aa6;
+      text-decoration: none;
+    }
+
+    /* En tu archivo assets/styles/admin.css */
+    th.header-for-field-text span {
+      color: white !important;
+    }
+
+
+
+    /* == Estilos para el campo de búsqueda == */
+
+    /*
+ * Contenedor principal de la búsqueda.
+ * Usa flexbox para alinear el label y el form-widget.
+ */
+    .content-search {
+      display: flex;
+      align-items: center;
+      /* Alinea los elementos verticalmente */
+      gap: 1rem;
+      /* Añade un espacio entre el label y el input */
+    }
+
+    /*
+ * Estilo del label "Buscar".
+ * Ahora es el label el que tiene el borde y el padding.
+ */
+    .content-search-label {
+      font-weight: bold;
+      color: #333;
+      border: #a9b8ce 1px solid;
+      border-radius: 4px;
+      padding: 0.375rem 0.75rem;
+      /* Ajusta el padding para que el texto no se pegue al borde */
+      white-space: nowrap;
+      /* Evita que el texto del label se rompa en varias líneas */
+    }
+
+    /*
+ * Contenedor del input (form-widget).
+ * Este contenedor ya no necesita los bordes, pero sí el flex-grow.
+ */
+    .form-widget-search {
+      flex-grow: 1;
+      /* Permite que el input ocupe el espacio restante */
+      display: flex;
+      align-items: center;
+    }
+
+    /*
+ * Estilo del input.
+ * Se quitan los bordes, el padding y el fondo para que el form-widget los gestione.
+ * El input ocupa todo el espacio de su contenedor.
+ */
+    .form-widget-search input {
+      border: none !important;
+      background: transparent !important;
+      flex-grow: 1;
+      padding: 0;
+    }
+
+    /*
+ * Estilo para el ícono de búsqueda (si existe).
+ */
+    .content-search-icon {
+      color: #333;
+      margin-right: 0.5rem;
+    }
+
+    /*
+ * Estilo de enfoque para el input.
+ * Se usa :focus-within en el contenedor `.form-widget`.
+ */
+    .content-search:focus-within .content-search-label {
+      border-color: #86b7fe;
+      box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+    }
+
+    /*== Fin Estilo para buscador ==*/
+
+    /*== Boton cancelar ==*/
+    .btn-custom-cancel {
+      /* Ajusta el padding para que coincida con los otros botones */
+      padding: 10px 15px;
+    }
+
+    /*== Boton cancelar ==*/
+
+    /* ESTILOS POLLOS */
+    .btn-primary {
+      background-color: #5d0b0d;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #7a1215 !important;
+    }
+
+    .form-group.field-collection .accordion {
+      background-color: #f8f9fa;
+      color: #495057;
+      border-radius: 4px;
+      box-shadow: none;
+    }
+
+    input.form-control:required,
+    select:required,
+    .ts-wrapper.form-select.single.plugin-dropdown_input.required.invalid {
+      background-color: #fff4cc;
+      border: 1px solid #ccc;
+    }
+
+    button.btn.btn-link.field-collection-add-button {
+      color: #5d0b0d;
+      text-decoration: none;
+      text-transform: uppercase;
+      border-top: 1px solid #5d0b0d;
+      border-bottom: 1px solid #5d0b0d;
+      padding: 10px 0;
+      display: inline-block;
+      border-radius: 0px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .main-header #header-logo .logo-custom {
+      display: block;
+      text-align: center;
+    }
+    .ico-home {
+      max-width: 3rem;
+      display: inline-block;
+      margin-right: 0.7rem;
+    }
+    /*
+    //////////////////////////////////////////////////////////////////////////////
+    ////////// ESTOS ESTILOS NO VAN, ES SOLO PARA VISUALIZAR EL SISTEMA //////////
+    ////////// Son contenedores vacíos (ya implementados en tu sistema) //////////
+    //////////////////////////////////////////////////////////////////////////////
+    */
+    body {
+      font-family: "Montserrat", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: weight;
+      font-style: normal;
+    }
+
+    @media (min-width: 1280px) {
+      .wrapper {
+        grid-column-gap: 0;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .wrapper {
+        display: grid;
+        grid-template-columns: var(--sidebar-max-width) auto;
+        min-block-size: 100vh;
+      }
+    }
+
+    .sidebar-wrapper {
+      position: relative;
+    }
+
+    .sidebar {
+      background: var(--sidebar-bg);
+      block-size: 100%;
+      inline-size: calc(40px + var(--sidebar-max-width));
+      inset-block-start: 0;
+      inset-inline-start: calc(-40px - var(--sidebar-max-width));
+      min-block-size: 100vh;
+      overflow-block: auto;
+      overflow-inline: hidden;
+      padding: 15px 20px;
+      position: fixed;
+      transition: left .3s;
+    }
+
+    section {
+      display: block;
+      unicode-bidi: isolate;
+    }
+
+    @media (min-width: 992px) {
+      .content-top {
+        block-size: 56px;
+        display: flex;
+        justify-content: space-between;
+        padding: 11px calc(var(--lg-content-padding-right) + var(--resize-handler-width) 10px) 11px var(--lg-content-padding-left);
+        position: relative;
+      }
+    }
+
+    .content-top {
+      align-items: center;
+      box-shadow: 0 1px 0 var(--content-top-border-color);
+      display: flex;
+      padding: 5px 15px 5px var(--content-padding-left);
+    }
+
+    /*
+    //////////////////////////////////////////////////////////////////////////////
+    ///////////////////// FIN DE LOS ESTILOS QUE NO VAN //////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
+    */
+
+    /* Acciones rápidas */
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="sidebar-wrapper">
+      <aside class="sidebar">
+        <header class="main-header">
+          <nav class="navbar" role="navigation">
+            <div id="header-logo">
+              <a class="logo" title="" href="/admin">
+                <span class="logo-custom"><img src="img/logoBackend.svg" class="img-fluid"></span>
+              </a>
+            </div>
+          </nav>
+        </header>
+      </aside>
+    </div>
+
+    <!-- A PARTIR DE ACÁ ES LO QUE IRIA, LO ANTERIOR ERA PARA VISUALIZAR EL ASPECTO GRAL NOMAS -->
+    <section class="main-content">
+      <aside class="content-top ea-search-disabled"></aside>
+      <div class="content-wrapper">
+        <article class="content">
+          <div class="content-header"></div>
+          <div class="content-body">
+            <div class="container mt-4">
+              <div class="row justify-content-center">
+                <div class="col-md-8 text-center">
+                  <h1 class="mb-4">Bienvenido a Vazquez Contadores Asociados</h1>
+                  <p class="lead">Tu socio confiable en soluciones contables y financieras.</p>
+                  <div class="row">
+                    <div class="col">
+                      <button class="btn btn-primary"><span class="ico-home"><img src="img/memo.svg" class="img-fluid"></span>Nuevo memo</button>
+                    </div>
+                    <div class="col">
+                      <button class="btn btn-primary"><span class="ico-home"><img src="img/archivo.svg" class="img-fluid"></span>Nuevo archivo</button>
+                    </div>
+                    <div class="col">
+                      <button class="btn btn-primary"><span class="ico-home"><img src="img/user.svg" class="img-fluid"></span>Nuevo cliente</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+    <!-- ACÁ TERMINA LO QUE IRIA -->
+  </div>
+  <!-- Bootstrap JS (opcional para componentes interactivos) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
