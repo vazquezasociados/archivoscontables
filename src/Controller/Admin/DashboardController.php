@@ -26,8 +26,8 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-        ->setTitle('<img src="/img/logoBackend.svg" style="height:30px;">')
-        ->setFaviconPath('build/images/logoBackend.svg'); // Tu imagen SVG
+        ->setTitle('<img src="/img/logo_login.svg" style="height:80px;">')
+        ->setFaviconPath('build/images/favicon.png'); // Tu imagen SVG
     }
 
     public function configureAssets(): Assets
