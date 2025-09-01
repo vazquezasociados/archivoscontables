@@ -124,7 +124,7 @@ class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         
-        $nombre = TextField::new('nombre', 'Nombre del Cliente')
+        $nombre = TextField::new('nombre', 'Nombre')
             ->setColumns(3);
         $nombreUsuario = TextField::new('nombreUsuario','cuil/cuit')
             ->setFormType(TextType::class)  // Fuerza tipo texto

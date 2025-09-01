@@ -167,39 +167,67 @@ th.header-for-field-text span {
 }
 /*== Boton cancelar ==*/
 
-/* ESTILOS POLLOS */
-.btn-primary {
-    background-color: #d53aa6;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
+ /* ESTILOS POLLOS */
+    .btn-primary {
+      background-color: #5d0b0d;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
 
-.btn-primary:hover {
-    background-color: #b8308e !important;
-}
-.form-group.field-collection .accordion{
-    background-color: #f8f9fa;
-    color: #495057;
-    border-radius: 4px;
-    box-shadow: none;
-}
-input.form-control:required, select:required, .ts-wrapper.form-select.single.plugin-dropdown_input.required.invalid {
-  background-color: #fff4cc;
-  border: 1px solid #ccc;
-}
-button.btn.btn-link.field-collection-add-button {
-    color: #d53aa6;
-    text-decoration: none;
-    text-transform: uppercase;
-    border-top: 1px solid #d53aa6;
-    border-bottom: 1px solid #d53aa6;
-    padding: 10px 0;
-    display: inline-block;
-    border-radius: 0px;
-    text-align: center;
-    width: 100%;
-}
+    .btn-primary:hover {
+      background-color: #7a1215 !important;
+    }
+
+    .form-group.field-collection .accordion {
+      background-color: #f8f9fa;
+      color: #495057;
+      border-radius: 4px;
+      box-shadow: none;
+    }
+
+    input.form-control:required,
+    select:required,
+    .ts-wrapper.form-select.single.plugin-dropdown_input.required.invalid {
+      background-color: #fff4cc;
+      border: 1px solid #ccc;
+    }
+
+    button.btn.btn-link.field-collection-add-button {
+      color: #5d0b0d;
+      text-decoration: none;
+      text-transform: uppercase;
+      border-top: 1px solid #5d0b0d;
+      border-bottom: 1px solid #5d0b0d;
+      padding: 10px 0;
+      display: inline-block;
+      border-radius: 0px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .main-header #header-logo .logo-custom {
+      display: block;
+      text-align: center;
+    }
+    .ico-home {
+      max-width: 3rem;
+      display: inline-block;
+      margin-right: 0.7rem;
+    }
+
+    button.action-saveAndAddAnother.btn.btn-secondary.action-save {
+        color: #5d0b0d;
+        border-radius: 10px;
+        background-color: #F0F0F0;
+    }
+    a.btn-custom-cancel.btn.btn-secondary {
+        border-radius: 10px;
+    }
+    .ea-dark-scheme .form-switch .form-check-input:checked, .form-switch .form-check-input:checked {
+        background-color: #5d0b0d;
+        border-color: #5d0b0d;
+    }
 
