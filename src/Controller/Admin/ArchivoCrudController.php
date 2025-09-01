@@ -31,6 +31,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use Symfony\Component\Validator\Constraints\File;
 
 class ArchivoCrudController extends AbstractCrudController
 {
@@ -341,6 +342,15 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setFormTypeOptions([
                     'allow_delete' => false,
                     'download_uri' => true,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '10M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                            ],
+                            'mimeTypesMessage' => 'Solo se permiten archivos PDF',
+                        ])
+            ],
                 ])
                 ->onlyOnForms()
                 ->onlyWhenCreating(),
