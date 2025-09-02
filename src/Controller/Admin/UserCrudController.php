@@ -180,17 +180,14 @@ class UserCrudController extends AbstractCrudController
         $password  = TextField::new('plainPassword', 'Password')
             ->setColumns(3)
             ->setFormType(PasswordType::class)
-            // ->setFormTypeOptions([
-            //         'attr' => [
-            //             'class' => 'password-field',
-            //             'autocomplete' => 'new-password',
-            //             'data-toggle' => 'password',
-            //         ],
-            //     ])
+            ->setFormTypeOptions([
+                'attr' => [
+                    'data-password-toggle' => 'true', 
+                ],
+            ])
             ->setRequired(false)
             ->onlyOnForms()
             ->setPermission('ROLE_ADMIN');
-
    
         // $maxCarga = IntegerField::new('maxCarga', 'Carga Máxima')->hideOnIndex();
         $roles = ChoiceField::new('roles', 'Roles')
