@@ -194,12 +194,20 @@ class UserCrudController extends AbstractCrudController
    
         // $maxCarga = IntegerField::new('maxCarga', 'Carga Máxima')->hideOnIndex();
         $roles = ChoiceField::new('roles', 'Roles')
-            ->setChoices($this->roles)
+            // ->setChoices($this->roles)
             ->allowMultipleChoices(true)
+            ->setChoices([
+                'Cliente' => 'ROLE_USER',  
+                'Administrador' => 'ROLE_ADMIN',
+            ])
             ->setColumns(4);
         $roles2 = ChoiceField::new('roles', 'Roles')
             ->onlyOnIndex()->renderAsBadges()
-            ->setChoices($this->rolesComplete);
+            // ->setChoices($this->rolesComplete)
+            ->setChoices([
+                'Cliente' => 'ROLE_USER',
+                'Administrador' => 'ROLE_ADMIN',
+            ]);
         $fechaAlta = DateField::new('createdAt', 'Fecha Alta')
                 ->setFormat('dd/MM/yyyy')
                 ->hideOnForm();

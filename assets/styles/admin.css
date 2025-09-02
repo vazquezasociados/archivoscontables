@@ -165,7 +165,28 @@ th.header-for-field-text span {
     /* Ajusta el padding para que coincida con los otros botones */
     padding: 10px 15px; 
 }
-/*== Boton cancelar ==*/
+/*==Fin Boton cancelar ==*/
+
+/*== Estilos para el password ==*/
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 2.5rem; /* espacio para el botón */
+}
+
+.password-wrapper button.toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+/*==Fin Estilos para el password ==*/
 
  /* ESTILOS POLLOS */
     .btn-primary {
@@ -231,3 +252,21 @@ th.header-for-field-text span {
         border-color: #5d0b0d;
     }
 
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 2.5rem; /* espacio para el botón */
+}
+
+.password-wrapper button.toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
