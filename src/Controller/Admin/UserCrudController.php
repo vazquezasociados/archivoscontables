@@ -61,7 +61,7 @@ class UserCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle(Crud::PAGE_INDEX, 'Clientes')
             ->setPageTitle(Crud::PAGE_DETAIL, 'Detalle del Cliente')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Cliente')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Usuario')
             ->setDefaultSort(['id' => 'DESC']) 
             ->setPaginatorPageSize(15);
             
@@ -80,7 +80,7 @@ class UserCrudController extends AbstractCrudController
         return $actions
             ->add(Crud::PAGE_INDEX, $verArchivos)// Agregar la acción personalizada al índice
             ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) { // Cambiar texto del botón "Nuevo"
-                return $action->setLabel('Crear Cliente');
+                return $action->setLabel('Crear');
             })
             ->update(Crud::PAGE_NEW, Action::SAVE_AND_RETURN, function (Action $action) {
                 return $action->setLabel('Crear'); // Cambia el nombre a "Crear"
