@@ -108,3 +108,41 @@ document.addEventListener("DOMContentLoaded", () => {
     updateVisibility(); // inicial
 });
 
+//== Para ocultar y mostrar pass ==//
+// document.addEventListener('DOMContentLoaded', () => {
+//   document.querySelectorAll('input[data-password-toggle="true"]').forEach(input => {
+//     const toggle = document.createElement('button');
+//     toggle.type = 'button';
+//     toggle.textContent = '👁';
+//     toggle.style.marginLeft = '5px';
+
+//     toggle.addEventListener('click', () => {
+//       input.type = input.type === 'password' ? 'text' : 'password';
+//     });
+
+//     input.insertAdjacentElement('afterend', toggle);
+//   });
+// });
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[data-password-toggle="true"]').forEach(input => {
+    // Crear wrapper
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('password-wrapper');
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+
+    // Crear botón
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.classList.add('toggle-password');
+    toggle.innerHTML = '👁'; //
+
+    toggle.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    wrapper.appendChild(toggle);
+  });
+});
+
+//== Fin Js para ocultar y mostrar pass ==//

@@ -59,9 +59,9 @@ class UserCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Clientes')
+            ->setPageTitle(Crud::PAGE_INDEX, 'Clientes')
             ->setPageTitle(Crud::PAGE_DETAIL, 'Detalle del Cliente')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Cliente')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Usuario')
             ->setDefaultSort(['id' => 'DESC']) 
             ->setPaginatorPageSize(15);
             
@@ -80,11 +80,23 @@ class UserCrudController extends AbstractCrudController
         return $actions
             ->add(Crud::PAGE_INDEX, $verArchivos)// Agregar la acción personalizada al índice
             ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) { // Cambiar texto del botón "Nuevo"
-                return $action->setLabel('Crear Cliente');
+                return $action->setLabel('Crear');
+            })
+            ->update(Crud::PAGE_NEW, Action::SAVE_AND_RETURN, function (Action $action) {
+                return $action->setLabel('Crear'); // Cambia el nombre a "Crear"
+            })
+            ->update(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER, function (Action $action) {
+                return $action->setLabel('Crear y añadir otro'); // Cambia el nombre a "Crear y añadir otro"
+            })
+            ->add(Crud::PAGE_NEW, Action::INDEX)
+            ->update(Crud::PAGE_NEW, Action::INDEX, function (Action $action) {
+                return $action
+                    ->setLabel('Cancelar')
+                    ->setCssClass('btn-custom-cancel');
             })
             // Solo mostrar la acción para usuarios con rol USER (no para admins)
             ->setPermission('verArchivos', 'ROLE_ADMIN');
-
+            
     }
     
     public function verArchivosCliente(): RedirectResponse
@@ -124,7 +136,7 @@ class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         
-        $nombre = TextField::new('nombre', 'Nombre del Cliente')
+        $nombre = TextField::new('nombre', 'Nombre')
             ->setColumns(3);
         $nombreUsuario = TextField::new('nombreUsuario','cuil/cuit')
             ->setFormType(TextType::class)  // Fuerza tipo texto
@@ -168,18 +180,31 @@ class UserCrudController extends AbstractCrudController
         $password  = TextField::new('plainPassword', 'Password')
             ->setColumns(3)
             ->setFormType(PasswordType::class)
-            ->setRequired(false)->onlyOnForms()
+            ->setFormTypeOptions([
+                'attr' => [
+                    'data-password-toggle' => 'true', 
+                ],
+            ])
+            ->setRequired(false)
+            ->onlyOnForms()
             ->setPermission('ROLE_ADMIN');
-
    
         // $maxCarga = IntegerField::new('maxCarga', 'Carga Máxima')->hideOnIndex();
         $roles = ChoiceField::new('roles', 'Roles')
-            ->setChoices($this->roles)
+            // ->setChoices($this->roles)
             ->allowMultipleChoices(true)
+            ->setChoices([
+                'Cliente' => 'ROLE_USER',  
+                'Administrador' => 'ROLE_ADMIN',
+            ])
             ->setColumns(4);
         $roles2 = ChoiceField::new('roles', 'Roles')
             ->onlyOnIndex()->renderAsBadges()
-            ->setChoices($this->rolesComplete);
+            // ->setChoices($this->rolesComplete)
+            ->setChoices([
+                'Cliente' => 'ROLE_USER',
+                'Administrador' => 'ROLE_ADMIN',
+            ]);
         $fechaAlta = DateField::new('createdAt', 'Fecha Alta')
                 ->setFormat('dd/MM/yyyy')
                 ->hideOnForm();
