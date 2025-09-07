@@ -57,7 +57,14 @@ class DashboardController extends AbstractDashboardController
                 MenuItem::linkToCrud('Lista de Archivos', '', Archivo::class),
                 MenuItem::linkToCrud('Categorías', '', Categoria::class),
             ]);
-            yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);
+            // yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);
+
+            // Esto es crítico para evitar que EasyAdmin "adivine" mal
+            yield MenuItem::linkToCrud('Listado de Clientes', 'fa-solid fa-users', User::class)
+                ->setController(ClienteCrudController::class);
+            yield MenuItem::linkToCrud('Listado de Administradores', 'fa-solid fa-user-shield', User::class)
+                ->setController(AdministradorCrudController::class);
+
         } elseif ($this->isGranted('ROLE_USER')) {
             yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
         }

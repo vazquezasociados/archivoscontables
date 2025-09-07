@@ -9,11 +9,20 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_CUIT', fields: ['nombreUsuario'])]
+#[UniqueEntity(
+    fields: ['email'],
+    message: 'Este email ya está registrado en el sistema.'
+)]
+#[UniqueEntity(
+    fields: ['nombreUsuario'],
+    message: 'Este CUIT/CUIL ya está registrado en el sistema.'
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
    
