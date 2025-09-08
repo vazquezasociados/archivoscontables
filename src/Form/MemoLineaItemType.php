@@ -27,31 +27,31 @@ class MemoLineaItemType extends AbstractType
                 'placeholder' => 'Seleccione un ítem',
             ])
             ->add('descripcionAdicional', TextareaType::class, [
-                'label' => 'Observaciones *',
+                'label' => 'Observaciones',
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
                     'class' => 'form-control',
-                    'placeholder' => 'Ingrese detalles adicionales'
+                    'placeholder' => 'Ingrese detalles adicionales (opcional)'
                 ]
             ])
             ->add('periodo', DateType::class, [
                 'widget' => 'single_text',
                 'format' => 'MM/yyyy',
                 'html5' => false,
-                'label' => 'Periodo *',
+                'label' => 'Periodo',
                 'help' => 'Ingrese el mes y año en formato MM/AAAA (ej: 02/2025)',
                 'help_attr' => [
                     'class' => 'text-muted small' // Clases CSS opcionales
                 ],
                 'attr' => [
-                    'placeholder' => 'MM/AAAA',
+                    'placeholder' => 'MM/AAAA (opcional)',
                     'class' => 'form-control date-picker' 
                 ],
                 'required' => true, // <--- Esto es clave
                 'model_timezone' => 'America/Argentina/Cordoba', // O la zona horaria de tu aplicación
                 'view_timezone' => 'America/Argentina/Cordoba',  // O la zona horaria de tu aplicación
-                'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
+                // 'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
             ]);
 
     }

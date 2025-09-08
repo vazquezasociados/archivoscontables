@@ -47,23 +47,22 @@ class DashboardController extends AbstractDashboardController
     private function getMenuItemsForRole(): iterable
     {
         if ($this->isGranted('ROLE_ADMIN')) {
-            yield MenuItem::subMenu('Memos', 'fa-solid fa-book')->setSubItems([
-                MenuItem::linkToCrud('Listado de Memos', '', Memo::class),
-                MenuItem::linkToCrud('Ítems', '', Item::class),
-            ])
-            ;
-
-            yield MenuItem::subMenu('Archivos', 'fa-solid fa-folder-open')->setSubItems([
-                MenuItem::linkToCrud('Lista de Archivos', '', Archivo::class),
-                MenuItem::linkToCrud('Categorías', '', Categoria::class),
-            ]);
-            // yield MenuItem::linkToCrud('Clientes', 'fa-solid fa-users', User::class);
-
-            // Esto es crítico para evitar que EasyAdmin "adivine" mal
-            yield MenuItem::linkToCrud('Listado de Clientes', 'fa-solid fa-users', User::class)
-                ->setController(ClienteCrudController::class);
-            yield MenuItem::linkToCrud('Listado de Administradores', 'fa-solid fa-user-shield', User::class)
-                ->setController(AdministradorCrudController::class);
+           // Cabecera para Memos
+        yield MenuItem::section('Memos');
+        yield MenuItem::linkToCrud('Listado de memos', '', Memo::class);
+        yield MenuItem::linkToCrud('Ítems', '', Item::class);
+        
+        // Cabecera para Archivos
+        yield MenuItem::section('Archivos');
+        yield MenuItem::linkToCrud('Lista de archivos', '', Archivo::class);
+        yield MenuItem::linkToCrud('Categorías', '', Categoria::class);
+        
+        // Cabecera para Usuarios
+        yield MenuItem::section('Usuarios');
+        yield MenuItem::linkToCrud('Listado de clientes', '', User::class)
+            ->setController(ClienteCrudController::class);
+        yield MenuItem::linkToCrud('Listado de administradores', '', User::class)
+            ->setController(AdministradorCrudController::class);
 
         } elseif ($this->isGranted('ROLE_USER')) {
             yield MenuItem::linkToCrud('Archivos', 'fa-solid fa-folder-open', Archivo::class);
