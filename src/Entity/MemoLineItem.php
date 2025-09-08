@@ -16,11 +16,11 @@ class MemoLineItem
     private ?int $id = null;
 
     #[ORM\Column(length: 300)]
-    #[Assert\NotBlank(message: "Observaciones no puede estar vacío.")] 
+    #[Assert\NotBlank(message: "Observaciones no puede estar vacío.")] //Se debe quitar este required
     private ?string $descripcionAdicional = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\NotBlank(message: "El periodo del ítem no puede estar vacío.")] 
+    #[Assert\NotBlank(message: "El periodo del ítem no puede estar vacío.")] //Se debe quitar este required
     #[Assert\Type(\DateTimeInterface::class, message: "El valor del periodo no es una fecha válida.")] 
     private ?\DateTimeInterface $periodo = null; 
 

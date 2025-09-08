@@ -28,7 +28,8 @@ class MemoCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Memos')
             ->setPaginatorPageSize(10)
             ->setSearchFields(['id', 'usuario.nombre', 'estado'])
-            ->overrideTemplate('crud/detail', 'admin/memo/detail.html.twig');
+            ->overrideTemplate('crud/detail', 'admin/memo/detail.html.twig'// tu template de detalle
+        );
     }
         // ¡Aquí es donde configuras los botones de acción!
     public function configureActions(Actions $actions): Actions
@@ -94,7 +95,8 @@ class MemoCrudController extends AbstractCrudController
                     'Retira cliente' => 'retira_cliente',
                     'Entrega al estudio' => 'entrega_estudio',
                 ])
-                ->setFormTypeOption('placeholder', 'Seleccionar')
+               // ->setFormTypeOption('placeholder', 'Seleccionar')
+                ->setFormTypeOption('data', 'retira_cliente') // valor por defecto
                 ->setColumns(2), 
                         
             TextField::new('pdfDownloadLink', 'Descarga')
