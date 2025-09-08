@@ -15,12 +15,19 @@ class MemoLineItem
     #[ORM\Column]
     private ?int $id = null;
 
+<<<<<<< HEAD
     #[ORM\Column(length: 300)]
     #[Assert\NotBlank(message: "Observaciones no puede estar vacío.")] //Se debe quitar este required
     private ?string $descripcionAdicional = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotBlank(message: "El periodo del ítem no puede estar vacío.")] //Se debe quitar este required
+=======
+    #[ORM\Column(length: 300, nullable: true)]
+    private ?string $descripcionAdicional = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+>>>>>>> ced46d9f038ac009927ea93d73a0d9047e307588
     #[Assert\Type(\DateTimeInterface::class, message: "El valor del periodo no es una fecha válida.")] 
     private ?\DateTimeInterface $periodo = null; 
 
@@ -43,7 +50,7 @@ class MemoLineItem
         return $this->descripcionAdicional;
     }
 
-    public function setDescripcionAdicional(string $descripcionAdicional): static
+    public function setDescripcionAdicional(?string $descripcionAdicional): static
     {
         $this->descripcionAdicional = $descripcionAdicional;
 
@@ -85,14 +92,6 @@ class MemoLineItem
 
         return $this;
     }
-
-    /**
-     * Formatea el período para visualización
-     */
-    // public function getPeriodoFormateado(): string
-    // {
-    //     return $this->periodo->format('d/m/Y');
-    // }
     
     public function __toString(): string
     {

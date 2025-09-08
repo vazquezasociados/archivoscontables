@@ -67,37 +67,37 @@ class Memo
         return $this;
     }
 
-/**
- * @return Collection<int, MemoLineItem>
- */
-public function getLineItems(): Collection
-{
-    return $this->lineItems;
-}
-
-public function addLineItem(MemoLineItem $lineItem): static
-{
-    if (!$this->lineItems->contains($lineItem)) {
-        $this->lineItems->add($lineItem);
-        $lineItem->setMemo($this);
+    /**
+     * @return Collection<int, MemoLineItem>
+     */
+    public function getLineItems(): Collection
+    {
+        return $this->lineItems;
     }
-    return $this;
-}
 
-public function removeLineItem(MemoLineItem $lineItem): static
-{
-    if ($this->lineItems->removeElement($lineItem)) {
-        // set the owning side to null (unless already changed)
-        if ($lineItem->getMemo() === $this) {
-            $lineItem->setMemo(null);
+    public function addLineItem(MemoLineItem $lineItem): static
+    {
+        if (!$this->lineItems->contains($lineItem)) {
+            $this->lineItems->add($lineItem);
+            $lineItem->setMemo($this);
         }
+        return $this;
     }
-    return $this;
-}
 
-public function getPdfDownloadLink(): string
-{
-    return ''; // Esto es solo un placeholder
-}
+    public function removeLineItem(MemoLineItem $lineItem): static
+    {
+        if ($this->lineItems->removeElement($lineItem)) {
+            // set the owning side to null (unless already changed)
+            if ($lineItem->getMemo() === $this) {
+                $lineItem->setMemo(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getPdfDownloadLink(): string
+    {
+        return ''; // Esto es solo un placeholder
+    }
 
 }

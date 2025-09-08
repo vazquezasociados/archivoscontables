@@ -32,7 +32,7 @@ class MemoLineaItemType extends AbstractType
                 'attr' => [
                     'rows' => 3,
                     'class' => 'form-control',
-                    'placeholder' => 'Ingrese detalles adicionales'
+                    'placeholder' => 'Ingrese detalles adicionales (opcional)'
                 ]
             ])
             ->add('periodo', DateType::class, [
@@ -45,13 +45,13 @@ class MemoLineaItemType extends AbstractType
                     'class' => 'text-muted small' // Clases CSS opcionales
                 ],
                 'attr' => [
-                    'placeholder' => 'MM/AAAA',
+                    'placeholder' => 'MM/AAAA (opcional)',
                     'class' => 'form-control date-picker' 
                 ],
                'required' => false, // <--- Esto es clave
                 'model_timezone' => 'America/Argentina/Cordoba', // O la zona horaria de tu aplicación
                 'view_timezone' => 'America/Argentina/Cordoba',  // O la zona horaria de tu aplicación
-                'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
+                // 'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
             ]);
 
     }
