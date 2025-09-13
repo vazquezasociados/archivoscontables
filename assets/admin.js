@@ -146,3 +146,40 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //== Fin Js para ocultar y mostrar pass ==//
+
+//== Js para añadir y eliminar formularios de archivos en subida masiva ==//
+        document.addEventListener('DOMContentLoaded', function () {
+            let collectionHolder = document.getElementById('archivos-collection');
+            let addButton = document.getElementById('add-archivo');
+            let index = collectionHolder.querySelectorAll('.archivo-item').length;
+
+            addButton.addEventListener('click', function () {
+                let prototype = collectionHolder.dataset.prototype;
+                let newForm = prototype.replace(/__name__/g, index);
+                index++;
+
+                let newDiv = document.createElement('div');
+                newDiv.classList.add('archivo-item', 'card', 'mb-3', 'rounded-3', 'shadow-sm');
+                newDiv.innerHTML = `<div class="card-body">${newForm}</div>`;
+
+                let removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.innerHTML = `<i class="fa fa-trash"></i> Eliminar`;
+                removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'rounded-pill', 'remove-archivo', 'd-block', 'ms-auto');
+                
+                let cardBody = newDiv.querySelector('.card-body');
+                cardBody.appendChild(removeButton);
+
+                collectionHolder.appendChild(newDiv);
+
+                removeButton.addEventListener('click', function () {
+                    newDiv.remove();
+                });
+            });
+
+            document.querySelectorAll('.remove-archivo').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    btn.closest('.archivo-item').remove();
+                });
+            });
+        });

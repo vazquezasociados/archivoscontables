@@ -1,0 +1,61 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content %}
+    <div class="container-fluid p-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">Subida Masiva de Archivos</h1>
+            <button type="button" id="add-archivo" class="btn btn-primary">+ Agregar archivo</button>
+        </div>
+
+        {{ form_start(form) }}
+
+        <div id="archivos-collection"
+             class="bg-light p-4 rounded-3 shadow-sm"
+             data-prototype="{{ form_widget(form.archivos.vars.prototype)|e('html_attr') }}">
+            
+            {% for archivoForm in form.archivos %}
+                <div class="archivo-item card mb-3 rounded-3 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_row(archivoForm.titulo) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form_row(archivoForm.descripcion) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_row(archivoForm.archivoFile) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form_row(archivoForm.categoria) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_row(archivoForm.usuario_cliente_asignado) }}
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-danger btn-sm rounded-pill remove-archivo">
+                                <i class="fa fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end ">
+            <button class="btn btn-primary me-2">
+                <i class="fa fa-upload me-2"></i> Subir archivos
+            </button>
+            <a href="{{ ea_url().setController('App\\Controller\\Admin\\ArchivoCrudController').setAction('index') }}"
+               class=" btn-custom-cancel btn btn-secondary">Cancelar</a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
