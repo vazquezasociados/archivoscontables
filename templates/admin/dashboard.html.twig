@@ -25,7 +25,11 @@
           </div>
           <div class="col">
             {# <button class="btn btn-primary"> #}
-            <a href="{{ path('admin_archivo_new') }}" class="btn btn-primary">
+            {# <a href="{{ path('admin_archivo_new') }}" class="btn btn-primary"> #}
+            <a href="{{ path('admin', {
+                  crudAction: 'uploadMasivo',
+                  crudControllerFqcn: 'App\\Controller\\Admin\\ArchivoCrudController'
+                }) }}" class="btn btn-primary">
               <span class="ico-home">
                 <img src="img/archivo.svg" class="img-fluid">
               </span>

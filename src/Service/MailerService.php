@@ -15,7 +15,7 @@ class MailerService
         $this->appUrl = $appUrl;
     }
 
-    public function sendWelcomeEmail(string $to, string $nombre): void
+    public function sendWelcomeEmail(string $to, string $nombre, string $cuit, string $password): void
     {
         // dd('Hola estoy aqui');
         $email = (new Email())
@@ -25,6 +25,10 @@ class MailerService
             ->html("
                 <h2>Hola {$nombre},</h2>
                 <p>🎉 Bienvenido a nuestra plataforma.</p>
+                <ul>
+                    <li><strong>Usuario:</strong> {$cuit}</li>
+                    <li><strong>Contraseña:</strong> {$password}</li>
+                </ul>
                 <p>Ya puedes acceder con tus credenciales.</p>
                 <a href='{$this->appUrl}/admin/archivo' target='_blank' style='color:#1a73e8;'>
                     iniciando sesión aquí

@@ -66,7 +66,7 @@ class ArchivoFormType extends AbstractType
                 'class' => User::class,
                 'choice_label' => 'nombre',
                 'label' => 'Asignar a cliente',
-                'required' => true, // AHORA ES REQUERIDO
+                'required' => false, // AHORA ES REQUERIDO
                 'placeholder' => 'Seleccione un cliente'
             ])
             ->add('expira', CheckboxType::class, [

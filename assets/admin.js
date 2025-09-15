@@ -109,20 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 //== Para ocultar y mostrar pass ==//
-// document.addEventListener('DOMContentLoaded', () => {
-//   document.querySelectorAll('input[data-password-toggle="true"]').forEach(input => {
-//     const toggle = document.createElement('button');
-//     toggle.type = 'button';
-//     toggle.textContent = '👁';
-//     toggle.style.marginLeft = '5px';
-
-//     toggle.addEventListener('click', () => {
-//       input.type = input.type === 'password' ? 'text' : 'password';
-//     });
-
-//     input.insertAdjacentElement('afterend', toggle);
-//   });
-// });
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('input[data-password-toggle="true"]').forEach(input => {
     // Crear wrapper
@@ -164,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let removeButton = document.createElement('button');
                 removeButton.type = 'button';
-                removeButton.innerHTML = `<i class="fa fa-trash"></i> Eliminar`;
+                removeButton.innerHTML = `<i class="fa fa-trash"></i> Elimir`;
                 removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'rounded-pill', 'remove-archivo', 'd-block', 'ms-auto');
                 
                 let cardBody = newDiv.querySelector('.card-body');

@@ -55,25 +55,68 @@ class ClienteCrudController extends AbstractCrudController
         return $queryBuilder;
     }
 
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof User) {
-            return;
-        }
+    // public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    // {
+    //     if (!$entityInstance instanceof User) {
+    //         return;
+    //     }
 
-        // Forzar que solo tenga ROLE_USER
-        $entityInstance->setRoles(['ROLE_USER']);
+    //     // Forzar que solo tenga ROLE_USER
+    //     $entityInstance->setRoles(['ROLE_USER']);
 
-        // Lógica de envío de mail
+    //     // Lógica de envío de mail
+    //     if ($entityInstance->isEnviarCorreoBienvenido()) {
+    //         $this->mailerService->sendWelcomeEmail(
+    //             $entityInstance->getEmail(),
+    //             $entityInstance->getNombre() ?? 'Usuario'
+    //         );
+    //     }
+
+    //     parent::persistEntity($entityManager, $entityInstance);
+    // }
+    // src/Controller/Admin/UserCrudController.php
+
+    // ... (todas tus dependencias y constructor)
+
+   public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+{
+    if (!$entityInstance instanceof User) {
+        return;
+    }
+
+    // Aseguramos que solo tenga el rol de cliente
+    $entityInstance->setRoles(['ROLE_USER']);
+
+    // Generar la contraseña solo si es un nuevo usuario y si el campo plainPassword no está vacío
+    if ($entityInstance->getId() === null && $entityInstance->getPlainPassword()) {
+        
+        // Obtener la contraseña en texto plano del formulario
+        $plainPassword = $entityInstance->getPlainPassword();
+        
+        // Hashear la contraseña y establecerla en la entidad para la persistencia
+        $hashedPassword = $this->passwordEncoder->hashPassword($entityInstance, $plainPassword);
+        $entityInstance->setPassword($hashedPassword);
+        
+        // Asignar el nombre de usuario (CUIT) para la persistencia
+        $cuit = $entityInstance->getNombreUsuario();
+        
+        // Enviar el correo electrónico con el CUIT y la contraseña en texto plano
         if ($entityInstance->isEnviarCorreoBienvenido()) {
             $this->mailerService->sendWelcomeEmail(
-                $entityInstance->getEmail(),
-                $entityInstance->getNombre() ?? 'Usuario'
+                $entityInstance->getEmail(),                 // $to
+                $entityInstance->getNombre() ?? 'Usuario',   // $nombre
+                $cuit,                                       // $cuit
+                $plainPassword                               // $password (texto plano)
             );
         }
-
-        parent::persistEntity($entityManager, $entityInstance);
     }
+
+    // Persistir la entidad en la base de datos
+    parent::persistEntity($entityManager, $entityInstance);
+}
+
+
+
 
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {

@@ -54,12 +54,40 @@ class ArchivoCrudController extends AbstractCrudController
     }
 
     public function configureCrud(Crud $crud): Crud
-    {
+    {   
+         
+        $title = 'Listado de Archivos';
+        $request = $this->requestStack->getCurrentRequest();
+
+        // Priorizar el 'clienteId' si viene de la acción de usuario
+        $clienteIdParam = $request->query->get('clienteId');
+        $filteredUserId = null;
+
+        if ($clienteIdParam) {
+            $filteredUserId = $clienteIdParam;
+        } elseif ($request && $request->query->has('filters')) {
+            // Si no hay 'clienteId' directo, buscar en los filtros de EasyAdmin
+            $filters = $request->query->all('filters');
+            if (isset($filters['usuario_cliente_asignado']['value']) && !empty($filters['usuario_cliente_asignado']['value'])) {
+                $filteredUserId = $filters['usuario_cliente_asignado']['value'];
+            }
+        }
+
+        // Si se encontró un ID de usuario por cualquier método, personalizar el título
+        if ($filteredUserId) {
+            $user = $this->userRepository->find($filteredUserId);
+            if ($user) {
+                $title = sprintf('📁 Archivos de %s', $user->getNombre());
+            }
+        }
+        
+        
         return $crud
-            ->setEntityLabelInSingular('Archivo')
-            ->setEntityLabelInPlural('Archivos')
+            ->setPageTitle(Crud::PAGE_INDEX,  $title)
+            ->setPageTitle(Crud::PAGE_NEW, 'Subir Nuevo Archivo')
+            ->setDefaultSort(['id' => 'DESC'])
             ->setSearchFields(['titulo'])
-            ->setDefaultSort(['createdAt' => 'DESC']);
+            ->setPaginatorPageSize(15);
     }
   
     public function createIndexQueryBuilder(
@@ -72,9 +100,14 @@ class ArchivoCrudController extends AbstractCrudController
 
         $user = $this->getUser();
         $request = $this->getContext()?->getRequest();
+
         $clienteId = $request && $request->query->has('clienteId')
             ? (int) $request->query->get('clienteId')
             : null;
+
+        $categoriaId = $request && $request->query->has('categoriaId')
+        ? (int) $request->query->get('categoriaId')
+        : null;    
 
         if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
             $qb
@@ -87,8 +120,45 @@ class ArchivoCrudController extends AbstractCrudController
                 ->andWhere('entity.usuario_cliente_asignado = :clienteId')
                 ->setParameter('clienteId', $clienteId);
         }
+        
+        if ($categoriaId) {
+        $qb
+            ->andWhere('entity.categoria = :categoriaId')
+            ->setParameter('categoriaId', $categoriaId);
+        }
 
         return $qb;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions = parent::configureActions($actions);
+
+        $uploadMasivo = Action::new('uploadMasivo', 'Crear')
+            ->linkToCrudAction('uploadMasivo')
+            ->addCssClass('btn btn-primary')
+            ->createAsGlobalAction();
+        return $actions
+            ->add(Crud::PAGE_INDEX, $uploadMasivo)
+            ->setPermission('uploadMasivo', 'ROLE_ADMIN')
+            ->setPermission(Action::EDIT, 'ROLE_ADMIN')
+            ->setPermission(Action::DELETE, 'ROLE_ADMIN')
+            ->setPermission(Action::DETAIL, 'ROLE_ADMIN')
+            ->disable(Action::NEW);
+    }
+
+    /**
+     * Construye la URL completa del archivo
+     */
+    private function construirUrlCompleta(Archivo $archivo): string
+    {
+        // Ejemplo de construcción de URL - ajusta según tu lógica
+        return sprintf(
+            '%s/archivo/publico/%d/%s',
+            $this->appUrl,
+            $archivo->getId(),
+            urlencode($archivo->getNombreArchivo())
+        );
     }
     
     public function configureFields(string $pageName): iterable
@@ -285,32 +355,6 @@ class ArchivoCrudController extends AbstractCrudController
     }
 
 
-    public function configureActions(Actions $actions): Actions
-    {
-        $actions = parent::configureActions($actions);
-
-        $uploadMasivo = Action::new('uploadMasivo', 'Subida Masiva')
-            ->linkToCrudAction('uploadMasivo')
-            ->addCssClass('btn btn-primary')
-            ->createAsGlobalAction();
-        return $actions
-            ->add(Crud::PAGE_INDEX, $uploadMasivo)
-            ->disable(Action::NEW);
-    }
-
-    /**
-     * Construye la URL completa del archivo
-     */
-    private function construirUrlCompleta(Archivo $archivo): string
-    {
-        // Ejemplo de construcción de URL - ajusta según tu lógica
-        return sprintf(
-            '%s/archivo/publico/%d/%s',
-            $this->appUrl,
-            $archivo->getId(),
-            urlencode($archivo->getNombreArchivo())
-        );
-    }
 
     public function uploadMasivo(AdminContext $context, Request $request, EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): Response
     {
@@ -335,12 +379,6 @@ class ArchivoCrudController extends AbstractCrudController
                         $errores[] = "Se requiere título para todos los archivos";
                         continue;
                     }
-
-                    // // VALIDAR CLIENTE ASIGNADO REQUERIDO
-                    // if ($archivo->getUsuarioClienteAsignado() === null) {
-                    //     $errores[] = "Se requiere asignar un cliente para el archivo: " . ($archivo->getTitulo() ?: 'sin título');
-                    //     continue;
-                    // }
 
                     // Asignar valores por defecto para campos requeridos
                     if ($archivo->isPermitidoPublicar() === null) {

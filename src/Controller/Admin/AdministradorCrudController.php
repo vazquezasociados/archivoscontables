@@ -64,12 +64,28 @@ class AdministradorCrudController extends AbstractCrudController
             $entityInstance->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
         }
 
-        // Lógica de envío de mail
-        if ($entityInstance->isEnviarCorreoBienvenido()) {
-            $this->mailerService->sendWelcomeEmail(
-                $entityInstance->getEmail(),
-                $entityInstance->getNombre() ?? 'Usuario'
-            );
+       // Generar la contraseña solo si es un nuevo usuario y si el campo plainPassword no está vacío
+        if ($entityInstance->getId() === null && $entityInstance->getPlainPassword()) {
+            
+            // Obtener la contraseña en texto plano del formulario
+            $plainPassword = $entityInstance->getPlainPassword();
+            
+            // Hashear la contraseña y establecerla en la entidad para la persistencia
+            $hashedPassword = $this->passwordEncoder->hashPassword($entityInstance, $plainPassword);
+            $entityInstance->setPassword($hashedPassword);
+            
+            // Asignar el nombre de usuario (CUIT) para la persistencia
+            $cuit = $entityInstance->getNombreUsuario();
+            
+            // Enviar el correo electrónico con el CUIT y la contraseña en texto plano
+            if ($entityInstance->isEnviarCorreoBienvenido()) {
+                $this->mailerService->sendWelcomeEmail(
+                    $entityInstance->getEmail(),                 // $to
+                    $entityInstance->getNombre() ?? 'Usuario',   // $nombre
+                    $cuit,                                       // $cuit
+                    $plainPassword                               // $password (texto plano)
+                );
+            }
         }
 
         parent::persistEntity($entityManager, $entityInstance);
