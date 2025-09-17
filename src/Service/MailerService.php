@@ -47,7 +47,7 @@ class MailerService
                     </ul>
                     <p style='text-align:center;'>Ya puedes acceder con tus credenciales.</p>
                     <p style='text-align:center;'>
-                        <a href='{$this->appUrl}/admin/archivo' target='_blank' 
+                        <a href='{$this->appUrl}/login target='_blank' 
                         style='display:inline-block; background:#1a73e8; color:#fff; 
                                 padding:10px 20px; text-decoration:none; border-radius:5px;'>
                             Iniciar sesión aquí
@@ -203,7 +203,7 @@ class MailerService
                         </p>
                         
                         <div style='text-align:center; margin:30px 0;'>
-                            <a href='{$this->appUrl}/admin/archivo' 
+                            <a href='{$this->appUrl}/login' 
                                target='_blank' 
                                style='
                                    display:inline-block; 

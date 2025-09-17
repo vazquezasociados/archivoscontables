@@ -86,6 +86,7 @@ class ClienteCrudController extends AbstractCrudController
                     $plainPassword                               // $password (texto plano)
                 );
             }
+            $this->addFlash('success', "¡Se envió exitosamente el mail de bienvenida!");
         }
 
         // Persistir la entidad en la base de datos

@@ -86,6 +86,7 @@ class AdministradorCrudController extends AbstractCrudController
                     $plainPassword                               // $password (texto plano)
                 );
             }
+            $this->addFlash('success', "¡Se envió exitosamente el mail de bienvenida!");
         }
 
         parent::persistEntity($entityManager, $entityInstance);
