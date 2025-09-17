@@ -53,6 +53,18 @@ class ArchivoCrudController extends AbstractCrudController
         return Archivo::class;
     }
 
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        // Asignar usuario automáticamente
+        if ($entityInstance instanceof Archivo && !$entityInstance->getUsuarioAlta()) {
+            $entityInstance->setUsuarioAlta($this->security->getUser());
+             // No tocar permitido_publicar aquí, lo decido manualmente
+        }
+        
+        parent::persistEntity($entityManager, $entityInstance);
+
+    }
+
     public function configureCrud(Crud $crud): Crud
     {   
          
@@ -366,6 +378,7 @@ class ArchivoCrudController extends AbstractCrudController
         if ($form->isSubmitted() && $form->isValid()) {
             $archivosGuardados = 0;
             $errores = [];
+            $archivosParaNotificar = [];
 
             foreach ($archivoCollectionDto->getArchivos() as $archivo) {
                 try {
@@ -406,6 +419,9 @@ class ArchivoCrudController extends AbstractCrudController
                     
                     $archivosGuardados++;
                     
+                    if ($archivo->isNotificarCliente()) {
+                    $archivosParaNotificar[] = $archivo;
+                    }
                 } catch (\Exception $e) {
                     $errores[] = "Error al procesar archivo: " . $e->getMessage();
                 }
@@ -413,7 +429,18 @@ class ArchivoCrudController extends AbstractCrudController
 
             if ($archivosGuardados > 0) {
                 $entityManager->flush(); // Flush final para guardar las URLs
+                // $this->addFlash('success', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente!");
+                // ← ENVIAR NOTIFICACIONES AGRUPADAS
+            if (!empty($archivosParaNotificar)) {
+                try {
+                    $this->mailerService->sendArchivoNotification($archivosParaNotificar);
+                    $this->addFlash('success', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente y notificaciones enviadas!");
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente, pero error enviando notificaciones: " . $e->getMessage());
+                }
+            } else {
                 $this->addFlash('success', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente!");
+            }
             }
 
             if (!empty($errores)) {

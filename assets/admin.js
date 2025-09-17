@@ -134,38 +134,58 @@ document.addEventListener('DOMContentLoaded', () => {
 //== Fin Js para ocultar y mostrar pass ==//
 
 //== Js para añadir y eliminar formularios de archivos en subida masiva ==//
-        document.addEventListener('DOMContentLoaded', function () {
-            let collectionHolder = document.getElementById('archivos-collection');
-            let addButton = document.getElementById('add-archivo');
-            let index = collectionHolder.querySelectorAll('.archivo-item').length;
+document.addEventListener('DOMContentLoaded', function () {
+    const collectionHolder = document.getElementById('archivos-collection');
+    const addButton = document.getElementById('add-archivo');
+    let index = collectionHolder.querySelectorAll('.archivo-item').length;
 
-            addButton.addEventListener('click', function () {
-                let prototype = collectionHolder.dataset.prototype;
-                let newForm = prototype.replace(/__name__/g, index);
-                index++;
+    function addArchivoForm() {
+        const prototype = collectionHolder.dataset.prototype;
+        const newForm = prototype.replace(/__name__/g, index);
 
-                let newDiv = document.createElement('div');
-                newDiv.classList.add('archivo-item', 'card', 'mb-3', 'rounded-3', 'shadow-sm');
-                newDiv.innerHTML = `<div class="card-body">${newForm}</div>`;
+        // IDs únicos para el acordeón
+        const itemId = `accordion-item-${index}`;
+        const headingId = `heading-${index}`;
+        const collapseId = `collapse-${index}`;
 
-                let removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.innerHTML = `<i class="fa fa-trash"></i> Elimir`;
-                removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'rounded-pill', 'remove-archivo', 'd-block', 'ms-auto');
-                
-                let cardBody = newDiv.querySelector('.card-body');
-                cardBody.appendChild(removeButton);
+        const newDiv = document.createElement('div');
+        newDiv.classList.add('accordion-item', 'archivo-item', 'mb-3', 'shadow-sm');
+        newDiv.innerHTML = `
+            <h2 class="accordion-header" id="${headingId}">
+                <button class="accordion-button fw-bold collapsed" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#${collapseId}"
+                        aria-expanded="false" aria-controls="${collapseId}">
+                    Archivo #${index + 1}
+                </button>
+            </h2>
+            <div id="${collapseId}" class="accordion-collapse collapse"
+                 aria-labelledby="${headingId}" data-bs-parent="#archivos-collection">
+                <div class="accordion-body">
+                    <div class="row g-3">${newForm}</div>
+                    <div class="mt-3 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-archivo">
+                            <i class="fa fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
 
-                collectionHolder.appendChild(newDiv);
-
-                removeButton.addEventListener('click', function () {
-                    newDiv.remove();
-                });
-            });
-
-            document.querySelectorAll('.remove-archivo').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    btn.closest('.archivo-item').remove();
-                });
-            });
+        // Botón eliminar
+        newDiv.querySelector('.remove-archivo').addEventListener('click', () => {
+            newDiv.remove();
         });
+
+        collectionHolder.appendChild(newDiv);
+        index++;
+    }
+
+    addButton.addEventListener('click', addArchivoForm);
+
+    // Inicial: conectar botones eliminar existentes
+    document.querySelectorAll('.remove-archivo').forEach(btn => {
+        btn.addEventListener('click', function () {
+            btn.closest('.archivo-item').remove();
+        });
+    });
+});
