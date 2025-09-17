@@ -29,10 +29,14 @@ class Categoria
     // Una categoría puede tener muchas subcategorías
     #[ORM\OneToMany(mappedBy: 'padre', targetEntity: self::class, cascade: ['persist'], orphanRemoval: false)]
     private Collection $subcategorias;
-    
+        
+    #[ORM\OneToMany(targetEntity: Archivo::class, mappedBy: 'categoria')]
+    private Collection $archivos;
+
     public function __construct()
     {
         $this->subcategorias = new ArrayCollection();
+        $this->archivos = new ArrayCollection();
     }
 
 
@@ -84,7 +88,12 @@ class Categoria
     {
         return $this->subcategorias;
     }
-
+    
+    // En App\Entity\Categoria.php
+    public function getAcciones(): string 
+    {
+        return ''; // Valor dummy, se sobrescribe con formatValue
+    }
     public function addSubcategoria(self $subcategoria): static
     {
         if (!$this->subcategorias->contains($subcategoria)) {
@@ -106,6 +115,52 @@ class Categoria
 
         return $this;
     }
+
+    // --- NUEVO: Métodos para la colección de archivos ---
+    /**
+     * @return Collection<int, Archivo>
+     */
+    public function getArchivos(): Collection
+    {
+        return $this->archivos;
+    }
+
+    public function addArchivo(Archivo $archivo): static
+    {
+        if (!$this->archivos->contains($archivo)) {
+            $this->archivos->add($archivo);
+            $archivo->setCategoria($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArchivo(Archivo $archivo): static
+    {
+        if ($this->archivos->removeElement($archivo)) {
+            // set the owning side to null (unless already changed)
+            if ($archivo->getCategoria() === $this) {
+                $archivo->setCategoria(null);
+            }
+        }
+
+        return $this;
+    }
+
+     /**
+     * Devuelve la cantidad de archivos asociados a esta categoría.
+     * @return int
+     */
+    public function getTotalArchivos(): int
+    {
+        // Si $archivos es una Collection de Doctrine, puedes usar count() directamente.
+        // Si por alguna razón $archivos no está inicializada, asegúrate de que se inicialice.
+        if ($this->archivos === null) {
+            return 0;
+        }
+        return $this->archivos->count();
+    }
+    // ----------------------------------------------------
 
     public function __toString(): string
     {

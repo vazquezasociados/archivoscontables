@@ -1,22 +1,19 @@
-<?php
+////////////////////////////////////////////////////////////////////////////////////////
+Original Controller Archivo
 
 namespace App\Controller\Admin;
+
 
 use App\Entity\Archivo;
 use App\Service\MailerService;
 use Doctrine\ORM\QueryBuilder;
-use App\Dto\ArchivoCollectionDto;
-use App\Form\ArchivosMasivosType;
 use App\Repository\UserRepository;
 use App\Repository\ArchivoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use Symfony\Component\Validator\Constraints\File;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
@@ -28,12 +25,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use Symfony\Component\Validator\Constraints\File;
 
 class ArchivoCrudController extends AbstractCrudController
 {
@@ -44,6 +41,7 @@ class ArchivoCrudController extends AbstractCrudController
         private RequestStack $requestStack,
         private string $appUrl,
         private MailerService $mailerService,
+        
     ) {
         $this->appUrl = rtrim($appUrl, '/');
     }
@@ -52,7 +50,6 @@ class ArchivoCrudController extends AbstractCrudController
     {
         return Archivo::class;
     }
-
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         // Asignar usuario automáticamente
@@ -63,6 +60,15 @@ class ArchivoCrudController extends AbstractCrudController
         
         parent::persistEntity($entityManager, $entityInstance);
 
+        if ($entityInstance->isNotificarCliente()) {
+                $this->mailerService->sendArchivoNotification($entityInstance);
+        }
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        // Tampoco tocar permitido_publicar aquí
+        parent::updateEntity($entityManager, $entityInstance);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -101,79 +107,68 @@ class ArchivoCrudController extends AbstractCrudController
             ->setSearchFields(['titulo'])
             ->setPaginatorPageSize(15);
     }
-  
+
+    public function configureActions(Actions $actions): Actions
+    {
+
+        $actions = $actions
+        ->setPermission(Action::NEW, 'ROLE_ADMIN')
+        ->setPermission(Action::EDIT, 'ROLE_ADMIN')
+        ->setPermission(Action::DELETE, 'ROLE_ADMIN')
+        ->setPermission(Action::DETAIL, 'ROLE_ADMIN')
+        ->update(Crud::PAGE_INDEX, Action::NEW, fn(Action $action) => $action->setLabel('Subir Archivo'));        
+        return $actions;
+    }
+   
     public function createIndexQueryBuilder(
         SearchDto $searchDto,
         EntityDto $entityDto,
         FieldCollection $fields,
-        \EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection $filters
+        FilterCollection $filters
     ): QueryBuilder {
-        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
-
         $user = $this->getUser();
         $request = $this->getContext()?->getRequest();
-
         $clienteId = $request && $request->query->has('clienteId')
             ? (int) $request->query->get('clienteId')
             : null;
 
-        $categoriaId = $request && $request->query->has('categoriaId')
-        ? (int) $request->query->get('categoriaId')
-        : null;    
+        // Obtener el término de búsqueda
+        $searchTerm = $searchDto->getQuery();
 
-        if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-            $qb
-                ->andWhere('entity.usuario_cliente_asignado = :user')
-                ->setParameter('user', $user)
-                ->andWhere('entity.expira = false OR (entity.expira = true AND entity.fecha_expira >= :hoy)')
-                ->setParameter('hoy', new \DateTimeImmutable('today'));
-        } elseif ($clienteId) {
-            $qb
-                ->andWhere('entity.usuario_cliente_asignado = :clienteId')
-                ->setParameter('clienteId', $clienteId);
-        }
-        
-        if ($categoriaId) {
-        $qb
-            ->andWhere('entity.categoria = :categoriaId')
-            ->setParameter('categoriaId', $categoriaId);
-        }
-
-        return $qb;
+        // Acá delegamos al repo con el término de búsqueda
+        return $this->archivoRepository->findArchivosVisiblesParaUser($user, $clienteId, $searchTerm);
     }
 
-    public function configureActions(Actions $actions): Actions
-    {
-        $actions = parent::configureActions($actions);
+    // public function createIndexQueryBuilder(
+    //     SearchDto $searchDto,
+    //     EntityDto $entityDto,
+    //     FieldCollection $fields,
+    //     FilterCollection $filters
+    // ): QueryBuilder {
+    //     $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
-        $uploadMasivo = Action::new('uploadMasivo', 'Crear')
-            ->linkToCrudAction('uploadMasivo')
-            ->addCssClass('btn btn-primary')
-            ->createAsGlobalAction();
-        return $actions
-            ->add(Crud::PAGE_INDEX, $uploadMasivo)
-            ->setPermission('uploadMasivo', 'ROLE_ADMIN')
-            ->setPermission(Action::EDIT, 'ROLE_ADMIN')
-            ->setPermission(Action::DELETE, 'ROLE_ADMIN')
-            ->setPermission(Action::DETAIL, 'ROLE_ADMIN')
-            ->disable(Action::NEW);
-    }
+    //     $user = $this->getUser();
+    //     $request = $this->getContext()?->getRequest();
+    //     $clienteId = $request && $request->query->has('clienteId')
+    //         ? (int) $request->query->get('clienteId')
+    //         : null;
 
-    /**
-     * Construye la URL completa del archivo
-     */
-    private function construirUrlCompleta(Archivo $archivo): string
-    {
-        // Ejemplo de construcción de URL - ajusta según tu lógica
-        return sprintf(
-            '%s/archivo/publico/%d/%s',
-            $this->appUrl,
-            $archivo->getId(),
-            urlencode($archivo->getNombreArchivo())
-        );
-    }
-    
-    public function configureFields(string $pageName): iterable
+    //     if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+    //         $qb
+    //             ->andWhere('entity.usuario_cliente_asignado = :user')
+    //             ->setParameter('user', $user)
+    //             ->andWhere('entity.expira = false OR (entity.expira = true AND entity.fecha_expira >= :hoy)')
+    //             ->setParameter('hoy', new \DateTimeImmutable('today'));
+    //     } elseif ($clienteId) {
+    //         $qb
+    //             ->andWhere('entity.usuario_cliente_asignado = :clienteId')
+    //             ->setParameter('clienteId', $clienteId);
+    //     }
+
+    //     return $qb;
+    // }
+
+   public function configureFields(string $pageName): iterable
     {
         // Si no es admin, mostrar solo campos básicos para usuarios
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -255,7 +250,7 @@ class ArchivoCrudController extends AbstractCrudController
                     // Ruta pública donde se guardan los archivos (ajustá según tu config de VichUploader)
                     $ruta = '/uploads/archivos_pdf/' . $entity->getNombreArchivo();
 
-                
+                 
                     return sprintf(
                         '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
                         htmlspecialchars($ruta),
@@ -276,7 +271,7 @@ class ArchivoCrudController extends AbstractCrudController
             // Mostrar solo el nombre del usuario en el index
             TextField::new('usuario_alta.nombre', 'Subido por')
                 ->onlyOnIndex(),
-
+ 
             TextField::new('asignadoTexto', 'Asignado')
                 ->onlyOnIndex()
                 ->renderAsHtml(),
@@ -325,7 +320,7 @@ class ArchivoCrudController extends AbstractCrudController
 
             TextEditorField::new('descripcion', 'Descripción')
                 ->onlyOnForms(),
-        
+           
             // Sección 4: Carga de archivo
             Field::new('archivoFile', 'Subir Archivo PDF')
                 ->setFormType(VichFileType::class)
@@ -342,7 +337,8 @@ class ArchivoCrudController extends AbstractCrudController
                         ])
             ],
                 ])
-                ->onlyOnForms(),
+                ->onlyOnForms()
+                ->onlyWhenCreating(),
 
             BooleanField::new('permitido_publicar', 'Permitir descarga pública')
                 ->onlyOnForms()
@@ -358,7 +354,7 @@ class ArchivoCrudController extends AbstractCrudController
                 ->setColumns(4)
                 ->setDisabled(true)
                 ->renderAsHtml(),
-        
+          
             BooleanField::new('notificar_cliente', 'Notificar al cliente')
                 ->onlyOnForms()
                 ->setFormTypeOption('data', true)
@@ -366,98 +362,7 @@ class ArchivoCrudController extends AbstractCrudController
         ];
     }
 
-
-
-    public function uploadMasivo(AdminContext $context, Request $request, EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): Response
-    {
-        $archivoCollectionDto = new ArchivoCollectionDto();
-        
-        $form = $this->createForm(ArchivosMasivosType::class, $archivoCollectionDto);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $archivosGuardados = 0;
-            $errores = [];
-            $archivosParaNotificar = [];
-
-            foreach ($archivoCollectionDto->getArchivos() as $archivo) {
-                try {
-                    // Solo procesar archivos que tengan un archivo subido
-                    if ($archivo->getArchivoFile() === null) {
-                        continue;
-                    }
-                    
-                    // VALIDAR TÍTULO REQUERIDO
-                    if (empty($archivo->getTitulo())) {
-                        $errores[] = "Se requiere título para todos los archivos";
-                        continue;
-                    }
-
-                    // Asignar valores por defecto para campos requeridos
-                    if ($archivo->isPermitidoPublicar() === null) {
-                        $archivo->setPermitidoPublicar(true); // Por defecto TRUE
-                    }
-                    
-                    if ($archivo->isExpira() === null) {
-                        $archivo->setExpira(false);
-                    }
-                    
-                    if ($archivo->isNotificarCliente() === null) {
-                        $archivo->setNotificarCliente(true); // Por defecto TRUE
-                    }
-
-                    // Asignar el usuario que subió el archivo
-                    $archivo->setUsuarioAlta($this->getUser());
-                    
-                    // Persistir primero para obtener el ID
-                    $entityManager->persist($archivo);
-                    $entityManager->flush(); // Flush individual para obtener el ID
-                    
-                    // Ahora construir y guardar la URL completa
-                    $urlCompleta = $this->construirUrlCompleta($archivo);
-                    $archivo->setUrlPublica($urlCompleta); // Asume que tienes este setter
-                    
-                    $archivosGuardados++;
-                    
-                    if ($archivo->isNotificarCliente()) {
-                    $archivosParaNotificar[] = $archivo;
-                    }
-                } catch (\Exception $e) {
-                    $errores[] = "Error al procesar archivo: " . $e->getMessage();
-                }
-            }
-
-            if ($archivosGuardados > 0) {
-                $entityManager->flush(); // Flush final para guardar las URLs
-                // $this->addFlash('success', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente!");
-                // ← ENVIAR NOTIFICACIONES AGRUPADAS
-            if (!empty($archivosParaNotificar)) {
-                try {
-                    $this->mailerService->sendArchivoNotification($archivosParaNotificar);
-                    $this->addFlash('success', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente y notificaciones enviadas!");
-                } catch (\Exception $e) {
-                    $this->addFlash('warning', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente, pero error enviando notificaciones: " . $e->getMessage());
-                }
-            } else {
-                $this->addFlash('success', "¡{$archivosGuardados} archivo(s) subido(s) exitosamente!");
-            }
-            }
-
-            if (!empty($errores)) {
-                foreach ($errores as $error) {
-                    $this->addFlash('error', $error);
-                }
-            }
-
-            if ($archivosGuardados === 0) {
-                $this->addFlash('warning', 'No se subieron archivos. Asegúrate de seleccionar archivos, completar título y asignar cliente.');
-            }
-
-            return $this->redirect($adminUrlGenerator->setController(self::class)->setAction(Action::INDEX)->generateUrl());
-        }
-
-        return $this->render('admin/archivo/upload_masivo.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
+   
 }
+
+////////////////////////////////////////////////////////////////////////////////////////

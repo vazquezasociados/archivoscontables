@@ -28,6 +28,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $appUrl: '%env(APP_URL)%'
+            $projectDir: '%kernel.project_dir%'
             $roles:
                 USER:  ROLE_USER
                 ADMIN: ROLE_ADMIN
