@@ -52,6 +52,7 @@ class MemoLineaItemType extends AbstractType
                 'model_timezone' => 'America/Argentina/Cordoba', // O la zona horaria de tu aplicación
                 'view_timezone' => 'America/Argentina/Cordoba',  // O la zona horaria de tu aplicación
                 // 'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
+                'data' => new \DateTime('now', new \DateTimeZone('America/Argentina/Cordoba')),
             ]);
 
     }
