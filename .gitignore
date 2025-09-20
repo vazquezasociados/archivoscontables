@@ -2,7 +2,7 @@
 /.env.local
 /.env.local.php
 /.env.*.local
-/-.env.local.php
+/.env
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
@@ -27,6 +27,3 @@ yarn-error.log
 
 ###> carpeta upload ###
 /public/uploads/
-###< carpeta upload ###
--env.local.php
-.env
