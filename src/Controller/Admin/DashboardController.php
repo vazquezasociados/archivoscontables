@@ -27,7 +27,8 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
         ->setTitle('<img src="/img/logo_login.svg" style="height:80px;">')
-        ->setFaviconPath('build/images/favicon.png'); // Tu imagen SVG
+        ->setFaviconPath('build/images/favicon.png') // Tu imagen SVG
+        ->disableDarkMode(); // Esta línea deshabilita la opción de tema oscuro
     }
 
     public function configureAssets(): Assets

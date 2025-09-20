@@ -28,8 +28,8 @@ class MemoCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Listado de Memos')
             ->setPaginatorPageSize(10)
             ->setSearchFields(['id', 'usuario.nombre', 'estado'])
-            ->overrideTemplate('crud/detail', 'admin/memo/detail.html.twig'// tu template de detalle
-        );
+            ->setDefaultSort(['id' => 'DESC'])
+            ->overrideTemplate('crud/detail', 'admin/memo/detail.html.twig');// tu template de detalle)
     }
         // ¡Aquí es donde configuras los botones de acción!
     public function configureActions(Actions $actions): Actions
