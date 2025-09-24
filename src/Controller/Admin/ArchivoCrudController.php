@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Archivo;
+use App\Entity\Categoria;
 use App\Service\MailerService;
 use Doctrine\ORM\QueryBuilder;
 use App\Dto\ArchivoCollectionDto;
@@ -44,6 +45,7 @@ class ArchivoCrudController extends AbstractCrudController
         private RequestStack $requestStack,
         private string $appUrl,
         private MailerService $mailerService,
+        private EntityManagerInterface $entityManager
     ) {
         $this->appUrl = rtrim($appUrl, '/');
     }
@@ -67,35 +69,45 @@ class ArchivoCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {   
-         
         $title = 'Listado de Archivos';
         $request = $this->requestStack->getCurrentRequest();
 
-        // Priorizar el 'clienteId' si viene de la acción de usuario
+        // 1. PRIMERO verificar si viene de categoría
+        $categoriaIdParam = $request->query->get('categoriaId');
+        $filteredCategoriaId = null;
+
+        if ($categoriaIdParam) {
+            $filteredCategoriaId = $categoriaIdParam;
+        }
+
+        // 2. LUEGO verificar si viene de usuario (tu lógica actual)
         $clienteIdParam = $request->query->get('clienteId');
         $filteredUserId = null;
 
         if ($clienteIdParam) {
             $filteredUserId = $clienteIdParam;
         } elseif ($request && $request->query->has('filters')) {
-            // Si no hay 'clienteId' directo, buscar en los filtros de EasyAdmin
             $filters = $request->query->all('filters');
             if (isset($filters['usuario_cliente_asignado']['value']) && !empty($filters['usuario_cliente_asignado']['value'])) {
                 $filteredUserId = $filters['usuario_cliente_asignado']['value'];
             }
         }
 
-        // Si se encontró un ID de usuario por cualquier método, personalizar el título
-        if ($filteredUserId) {
+        // PRIORIDAD: Primero categoría, luego usuario
+        if ($filteredCategoriaId) {
+            $categoria = $this->entityManager->getRepository(Categoria::class)->find($filteredCategoriaId);
+            if ($categoria) {
+                $title = sprintf('📁 Archivos - Categoría %s', $categoria->getNombre());
+            }
+        } elseif ($filteredUserId) {
             $user = $this->userRepository->find($filteredUserId);
             if ($user) {
                 $title = sprintf('📁 Archivos de %s', $user->getNombre());
             }
         }
         
-        
         return $crud
-            ->setPageTitle(Crud::PAGE_INDEX,  $title)
+            ->setPageTitle(Crud::PAGE_INDEX, $title)
             ->setPageTitle(Crud::PAGE_NEW, 'Subir Nuevo Archivo')
             ->setDefaultSort(['id' => 'DESC'])
             ->setSearchFields(['titulo'])

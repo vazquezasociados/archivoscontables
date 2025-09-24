@@ -351,4 +351,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->enviarCorreoBienvenido;
     }
+
+    /**
+     * Cuenta los archivos asignados a este usuario
+    */
+    public function getArchivosAsignadosCount(): int
+    {
+        return $this->archivos->filter(function($archivo) {
+            return $archivo->getUsuarioClienteAsignado() === $this;
+        })->count();
+    }
+
+    /**
+     * Obtiene los archivos asignados a este usuario
+     */
+    public function getArchivosAsignados(): Collection
+    {
+        return $this->archivos->filter(function($archivo) {
+            return $archivo->getUsuarioClienteAsignado() === $this;
+        });
+    }
+
+    /**
+     * Método virtual para EasyAdmin - botón de acciones  
+     */
+    public function getVerArchivos(): string
+    {
+        // Este método tampoco es práctico porque no tiene acceso al AdminUrlGenerator
+        return '';
+    }
 }

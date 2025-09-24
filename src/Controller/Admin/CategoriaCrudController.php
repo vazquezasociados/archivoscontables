@@ -123,9 +123,9 @@ class CategoriaCrudController extends AbstractCrudController
                             ->generateUrl();
 
                         return sprintf(
-                            '<a href="%s" class="btn btn-sm btn-outline-primary">
-                                <i class="fa fa-folder-open"></i> Ver Archivos
-                             </a>',
+                            '<a href="%s" class="btn btn-sm btn-primary">
+                                <i class="fas fa-folder-open"></i> Ver
+                            </a>', 
                             htmlspecialchars($url)
                         );
 
