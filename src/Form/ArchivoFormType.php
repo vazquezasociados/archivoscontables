@@ -67,8 +67,10 @@ class ArchivoFormType extends AbstractType
             'placeholder' => 'Seleccione un cliente',
             'query_builder' => function (UserRepository $er) {
                 return $er->createQueryBuilder('u')
-                    ->where('u.roles LIKE :role')
-                    ->setParameter('role', '%"ROLE_USER"%'); // 🔹 busca ROLE_USER dentro del JSON de roles
+                    ->where('u.roles LIKE :userRole')
+                    ->andWhere('u.roles NOT LIKE :adminRole')
+                    ->setParameter('userRole', '%"ROLE_USER"%')
+                    ->setParameter('adminRole', '%"ROLE_ADMIN"%');
             },
             'attr' => [
                 'class' => 'form-control'
