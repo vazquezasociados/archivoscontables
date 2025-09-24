@@ -2,22 +2,23 @@
 
 namespace App\Form;
 
-use App\Entity\Archivo;
 use App\Entity\User;
+use App\Entity\Archivo;
 use App\Entity\Categoria;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Vich\UploaderBundle\Form\Type\VichFileType;
+use App\Repository\UserRepository;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormInterface;
+use Vich\UploaderBundle\Form\Type\VichFileType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ArchivoFormType extends AbstractType
 {
@@ -64,11 +65,18 @@ class ArchivoFormType extends AbstractType
             'label' => 'Asignar a cliente',
             'required' => false,
             'placeholder' => 'Seleccione un cliente',
+            'query_builder' => function (UserRepository $er) {
+                return $er->createQueryBuilder('u')
+                    ->where('u.roles LIKE :userRole')
+                    ->andWhere('u.roles NOT LIKE :adminRole')
+                    ->setParameter('userRole', '%"ROLE_USER"%')
+                    ->setParameter('adminRole', '%"ROLE_ADMIN"%');
+            },
             'attr' => [
                 'class' => 'form-control'
             ],
             'row_attr' => [
-                'class' => 'col-md-4 mb-3' // 🔹 ocupa 1/3 de la fila
+                'class' => 'col-md-4 mb-3'
             ],
             'label_attr' => [
                 'class' => 'form-label d-block'

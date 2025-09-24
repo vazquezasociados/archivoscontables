@@ -4,26 +4,27 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Service\MailerService;
+use Doctrine\ORM\QueryBuilder;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ClienteCrudController extends AbstractCrudController
 {
@@ -38,7 +39,8 @@ class ClienteCrudController extends AbstractCrudController
         private UserPasswordHasherInterface $passwordEncoder,
         private AdminUrlGenerator $adminUrlGenerator,
         private UserRepository $userRepository,
-        private MailerService $mailerService
+        private MailerService $mailerService,
+        private EntityManagerInterface $entityManager 
     ){}
 
     // Filtrar solo usuarios con ROLE_USER
@@ -122,14 +124,14 @@ class ClienteCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         // Crear la acción personalizada "Ver archivos"
-        $verArchivos = Action::new('verArchivos', 'Ver archivos')
-            ->linkToCrudAction('verArchivosCliente')
-            ->setHtmlAttributes([
-                'title' => 'Ver archivos asignados al cliente'
-            ]);
+        // $verArchivos = Action::new('verArchivos', 'Ver archivos')
+        //     ->linkToCrudAction('verArchivosCliente')
+        //     ->setHtmlAttributes([
+        //         'title' => 'Ver archivos asignados al cliente'
+        //     ]);
 
         return $actions
-            ->add(Crud::PAGE_INDEX, $verArchivos)
+            // ->add(Crud::PAGE_INDEX, $verArchivos)
             ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
                 return $action->setLabel('Crear Cliente');
             })
@@ -144,8 +146,8 @@ class ClienteCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Cancelar')
                     ->setCssClass('btn-custom-cancel');
-            })
-            ->setPermission('verArchivos', 'ROLE_ADMIN');
+            });
+            // ->setPermission('verArchivos', 'ROLE_ADMIN');
     }
 
     public function verArchivosCliente(): RedirectResponse
@@ -214,6 +216,71 @@ class ClienteCrudController extends AbstractCrudController
 
         $activo = BooleanField::new('activo', 'Activo')
             ->setColumns(3);
+         
+        // NUEVO CAMPO: Contador de archivos
+        // $archivosCount = IntegerField::new('archivosAsignadosCount', 'Total de archivos')
+        //     ->onlyOnIndex()
+        //     ->setColumns(2)
+        //     ->formatValue(function ($value, $entity) {
+        //         if (!$entity instanceof User) {
+        //             return 0;
+        //         }
+                
+        //         // Contar usando DQL directamente
+        //         $count = $this->entityManager
+        //             ->createQuery('
+        //                 SELECT COUNT(a.id) 
+        //                 FROM App\Entity\Archivo a 
+        //                 WHERE a.usuario_cliente_asignado = :usuario
+        //             ')
+        //             ->setParameter('usuario', $entity)
+        //             ->getSingleScalarResult();
+                    
+        //         return (int) $count;
+        //     })
+        //     ->setSortable(false)
+        //     ->setCssClass('text-center')
+        //     ->hideOnForm();
+
+        $verArchivosBoton = TextField::new('verArchivos', 'Acciones')
+            ->onlyOnIndex()
+            ->setColumns(2)
+            ->formatValue(function ($value, $entity) {
+                if (!$entity instanceof User) {
+                    return '';
+                }
+                
+                // Contar archivos para mostrar el botón condicionalmente
+                $count = $this->entityManager
+                    ->createQuery('
+                        SELECT COUNT(a.id) 
+                        FROM App\Entity\Archivo a 
+                        WHERE a.usuario_cliente_asignado = :usuario
+                    ')
+                    ->setParameter('usuario', $entity)
+                    ->getSingleScalarResult();
+                
+                if ($count > 0) {
+                    // Generar URL para ver archivos
+                    $url = $this->adminUrlGenerator
+                        ->setController(ArchivoCrudController::class)
+                        ->setAction(Action::INDEX)
+                        ->set('clienteId', $entity->getId())
+                        ->generateUrl();
+                    
+                    return sprintf(
+                        '<a href="%s" class="btn btn-sm btn-primary" title="Ver archivos asignados">
+                            <i class="fas fa-folder-open"></i> Ver (%d)
+                        </a>',
+                        $url,
+                        $count
+                    );
+                }
+                
+                return '<span class="text-muted">Sin archivos</span>';
+            })
+            ->renderAsHtml()
+            ->setSortable(false);
 
         $bienvenido = BooleanField::new('enviarCorreoBienvenido', 'Enviar correo de bienvenida')
             ->setColumns(3);
@@ -249,7 +316,7 @@ class ClienteCrudController extends AbstractCrudController
             ->hideOnForm();
 
         if(Crud::PAGE_INDEX === $pageName){
-            return [$nombre, $nombreUsuario, $email, $fechaAlta, $activo];
+            return [$nombre, $nombreUsuario, $email, $fechaAlta,$verArchivosBoton,$activo];
         }
 
         return [
