@@ -149,11 +149,11 @@ class MailerService
         
         // Determinar subject y mensaje según cantidad
         if ($cantidadArchivos === 1) {
-            $subject = 'Archivos Nuevo subido para usted';
-            $mensajeIntro = 'Los siguientes archivos estan disponibles para ser descargado:';
+            $subject = 'Nuevos archivos subidos para usted.';
+            $mensajeIntro = 'Los siguientes archivos estan disponibles para ser descargados:';
         } else {
-            $subject = "Los siguientes archivos estan disponibles para ser descargados)";
-            $mensajeIntro = "Los siguientes archivos estan disponibles para ser descargado:";
+            $subject = "Los siguientes archivos estan disponibles para ser descargados:)";
+            $mensajeIntro = "Los siguientes archivos estan disponibles para ser descargados:";
         }
 
         // Generar lista de archivos
@@ -179,7 +179,7 @@ class MailerService
                         box-shadow:0 2px 10px rgba(0,0,0,0.1);
                         font-family: Arial, sans-serif;
                     '>
-                        <h3 style='color:#333; margin-bottom:20px;'>Archivos nuevos subidos para usted</h3>
+                        <h3 style='color:#333; margin-bottom:20px;'>Nuevos Archivos subidos para usted.</h3>
                         
                         <p style='color:#555; font-size:16px; line-height:1.5;'>
                           {$mensajeIntro}
@@ -197,9 +197,9 @@ class MailerService
                         
                         <p style='color:#555; font-size:16px; line-height:1.5;'>
                             " . ($cantidadArchivos === 1 ? 
-                                'Puedes acceder a tu archivo' : 
-                                'Puedes acceder a todos tus archivos'
-                            ) . " haciendo clic en el botón de abajo:
+                                'Puede acceder a sus archivos' : 
+                                'Puede acceder a sus archivos' 
+                            ) . " haciendo clic en el siguiente enlace:
                         </p>
                         
                         <div style='text-align:center; margin:30px 0;'>
