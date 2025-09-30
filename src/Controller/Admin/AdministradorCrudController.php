@@ -192,9 +192,13 @@ class AdministradorCrudController extends AbstractCrudController
                     'data-password-toggle' => 'true',
                 ],
             ])
-            ->setRequired(false)
+            ->setRequired(true)
+            ->setRequired($pageName === Crud::PAGE_NEW)
             ->onlyOnForms()
-            ->setPermission('ROLE_ADMIN');
+            ->setPermission('ROLE_ADMIN')
+            ->setHelp($pageName === Crud::PAGE_NEW 
+                ? 'La contraseña es obligatoria al crear un nuevo usuario' 
+                : 'Dejar en blanco para mantener la contraseña actual');;
 
         // Campo de roles para administradores (pueden tener múltiples roles)
         $roles = ChoiceField::new('roles', 'Roles')

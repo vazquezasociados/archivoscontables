@@ -66,6 +66,9 @@ class CategoriaCrudController extends AbstractCrudController
             ->setController(ArchivoCrudController::class)
             ->setAction(Crud::PAGE_INDEX)
             ->set('categoriaId', $categoria->getId()) // pasamos la categoría
+            ->set('query', null)
+            ->set('page', 1) 
+            ->unset('sort')
             ->generateUrl();
 
         return $this->redirect($url);
@@ -120,6 +123,9 @@ class CategoriaCrudController extends AbstractCrudController
                             ->setController(ArchivoCrudController::class)
                             ->setAction(Crud::PAGE_INDEX)
                             ->set('categoriaId', $categoriaId)
+                            ->set('query', null)
+                            ->set('page', 1) 
+                            ->unset('sort')
                             ->generateUrl();
 
                         return sprintf(
