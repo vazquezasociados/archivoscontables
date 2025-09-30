@@ -87,8 +87,21 @@ class ClienteCrudController extends AbstractCrudController
                     $cuit,                                       // $cuit
                     $plainPassword                               // $password (texto plano)
                 );
+                // Mensaje cuando SÍ se envía el correo
+                $this->addFlash('success', sprintf(
+                    'Cliente "%s" creado correctamente. Se envió un correo de bienvenida a %s',
+                    $entityInstance->getNombre(),
+                    $entityInstance->getEmail()
+                ));
+            } else {
+                // Mensaje cuando NO se envía el correo
+                $this->addFlash('success', sprintf(
+                    'Cliente "%s" creado correctamente. No se envió correo de bienvenida.',
+                    $entityInstance->getNombre()
+                ));
             }
-            $this->addFlash('success', "¡Se envió exitosamente el mail de bienvenida!");
+        
+           
         }
 
         // Persistir la entidad en la base de datos
@@ -123,15 +136,10 @@ class ClienteCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        // Crear la acción personalizada "Ver archivos"
-        // $verArchivos = Action::new('verArchivos', 'Ver archivos')
-        //     ->linkToCrudAction('verArchivosCliente')
-        //     ->setHtmlAttributes([
-        //         'title' => 'Ver archivos asignados al cliente'
-        //     ]);
+
 
         return $actions
-            // ->add(Crud::PAGE_INDEX, $verArchivos)
+          
             ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
                 return $action->setLabel('Crear Cliente');
             })
@@ -159,6 +167,9 @@ class ClienteCrudController extends AbstractCrudController
             return $this->redirect($this->adminUrlGenerator
                 ->setController(ClienteCrudController::class)
                 ->setAction(Action::INDEX)
+                ->set('query', null)
+                ->set('page', 1) 
+                ->unset('sort') 
                 ->generateUrl()
             );
         }
@@ -217,31 +228,6 @@ class ClienteCrudController extends AbstractCrudController
         $activo = BooleanField::new('activo', 'Activo')
             ->setColumns(3);
          
-        // NUEVO CAMPO: Contador de archivos
-        // $archivosCount = IntegerField::new('archivosAsignadosCount', 'Total de archivos')
-        //     ->onlyOnIndex()
-        //     ->setColumns(2)
-        //     ->formatValue(function ($value, $entity) {
-        //         if (!$entity instanceof User) {
-        //             return 0;
-        //         }
-                
-        //         // Contar usando DQL directamente
-        //         $count = $this->entityManager
-        //             ->createQuery('
-        //                 SELECT COUNT(a.id) 
-        //                 FROM App\Entity\Archivo a 
-        //                 WHERE a.usuario_cliente_asignado = :usuario
-        //             ')
-        //             ->setParameter('usuario', $entity)
-        //             ->getSingleScalarResult();
-                    
-        //         return (int) $count;
-        //     })
-        //     ->setSortable(false)
-        //     ->setCssClass('text-center')
-        //     ->hideOnForm();
-
         $verArchivosBoton = TextField::new('verArchivos', 'Acciones')
             ->onlyOnIndex()
             ->setColumns(2)
@@ -266,6 +252,9 @@ class ClienteCrudController extends AbstractCrudController
                         ->setController(ArchivoCrudController::class)
                         ->setAction(Action::INDEX)
                         ->set('clienteId', $entity->getId())
+                        ->set('query', null)
+                        ->set('page', 1) 
+                        ->unset('sort') 
                         ->generateUrl();
                     
                     return sprintf(
@@ -300,9 +289,13 @@ class ClienteCrudController extends AbstractCrudController
                     'data-password-toggle' => 'true',
                 ],
             ])
-            ->setRequired(false)
+            ->setRequired(true)
+            ->setRequired($pageName === Crud::PAGE_NEW)
             ->onlyOnForms()
-            ->setPermission('ROLE_ADMIN');
+            ->setPermission('ROLE_ADMIN')
+            ->setHelp($pageName === Crud::PAGE_NEW 
+                ? 'La contraseña es obligatoria al crear un nuevo usuario' 
+                : 'Dejar en blanco para mantener la contraseña actual');
 
         // Campo de rol oculto pero fijo como ROLE_USER
         $roles = ChoiceField::new('roles', 'Tipo')
