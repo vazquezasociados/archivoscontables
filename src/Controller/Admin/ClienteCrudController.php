@@ -117,7 +117,7 @@ class ClienteCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_DETAIL, 'Detalle del Cliente')
             ->setPageTitle(Crud::PAGE_NEW, 'Nuevo Cliente')
             ->setPageTitle(Crud::PAGE_EDIT, 'Editar Cliente')
-            ->setDefaultSort(['id' => 'DESC'])
+            ->setDefaultSort(['nombre' => 'ASC'])
             ->setPaginatorPageSize(15);
     }
 
