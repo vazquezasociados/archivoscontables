@@ -24,9 +24,18 @@ class DashboardController extends AbstractDashboardController
     }
 
     public function configureDashboard(): Dashboard
-    {
+    {   
+        $mensajeDev = '';
+
+        if ($_ENV['APP_ENV'] === 'dev') {
+            $mensajeDev = '<p style="background:red; color:white; padding:6px; border-radius:4px; margin-top:10px;">
+                Entorno de Pruebas
+            </p>';
+        }
         return Dashboard::new()
-        ->setTitle('<img src="/img/logo_login.svg" style="height:80px;">')
+        ->setTitle('<img src="/img/logo_login.svg" style="height:80px;"><br>'
+                        . $mensajeDev . '
+        ')
         ->setFaviconPath('build/images/favicon.png') // Tu imagen SVG
         ->disableDarkMode(); // Esta línea deshabilita la opción de tema oscuro
     }
