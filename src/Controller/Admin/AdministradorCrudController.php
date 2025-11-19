@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Service\MailerService;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -16,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -32,11 +30,7 @@ class AdministradorCrudController extends AbstractCrudController
     }
 
     public function __construct(
-        private array $roles,
-        private array $rolesComplete,
         private UserPasswordHasherInterface $passwordEncoder,
-        private AdminUrlGenerator $adminUrlGenerator,
-        private UserRepository $userRepository,
         private MailerService $mailerService
     ){}
 
@@ -200,15 +194,6 @@ class AdministradorCrudController extends AbstractCrudController
                 ? 'La contraseña es obligatoria al crear un nuevo usuario' 
                 : 'Dejar en blanco para mantener la contraseña actual');;
 
-        // Campo de roles para administradores (pueden tener múltiples roles)
-        $roles = ChoiceField::new('roles', 'Roles')
-            ->allowMultipleChoices(true)
-            ->setChoices([
-                'Usuario' => 'ROLE_USER',
-                'Administrador' => 'ROLE_ADMIN',
-            ])
-            ->setColumns(4)
-            ->onlyOnForms();
 
         $rolesDisplay = ChoiceField::new('roles', 'Roles')
             ->onlyOnIndex()

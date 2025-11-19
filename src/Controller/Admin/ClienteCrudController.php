@@ -14,10 +14,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -34,8 +32,7 @@ class ClienteCrudController extends AbstractCrudController
     }
 
     public function __construct(
-        private array $roles,
-        private array $rolesComplete,
+
         private UserPasswordHasherInterface $passwordEncoder,
         private AdminUrlGenerator $adminUrlGenerator,
         private UserRepository $userRepository,
@@ -297,12 +294,6 @@ class ClienteCrudController extends AbstractCrudController
                 ? 'La contraseña es obligatoria al crear un nuevo usuario' 
                 : 'Dejar en blanco para mantener la contraseña actual');
 
-        // Campo de rol oculto pero fijo como ROLE_USER
-        $roles = ChoiceField::new('roles', 'Tipo')
-            ->setChoices(['Cliente' => 'ROLE_USER'])
-            ->allowMultipleChoices(false)
-            ->setColumns(4)
-            ->hideOnForm(); // Lo ocultamos porque siempre será Cliente
 
         $fechaAlta = DateField::new('createdAt', 'Fecha Alta')
             ->setFormat('dd/MM/yyyy')

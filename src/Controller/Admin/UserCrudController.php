@@ -1,5 +1,5 @@
 <?php
-
+// Este controlador no se usa actualmete
 namespace App\Controller\Admin;
 
 use App\Entity\User;

@@ -212,9 +212,11 @@ class ArchivoCrudController extends AbstractCrudController
                         $ruta = '/uploads/archivos_pdf/' . $entity->getNombreArchivo();
 
                         return sprintf(
-                            '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
-                            htmlspecialchars($ruta), 
-                            htmlspecialchars($value));
+                            '<a href="%s" download="%s.pdf" style="text-decoration: underline; color: #007bff;">%s</a>',
+                            htmlspecialchars($ruta),
+                            htmlspecialchars($value), 
+                            htmlspecialchars($value)
+                        );
                     })
                     ->renderAsHtml(),
 
@@ -269,8 +271,9 @@ class ArchivoCrudController extends AbstractCrudController
 
                 
                     return sprintf(
-                        '<a href="%s" target="_blank" style="text-decoration: underline; color: #007bff;">%s</a>',
+                        '<a href="%s" download="%s.pdf" style="text-decoration: underline; color: #007bff;">%s</a>',
                         htmlspecialchars($ruta),
+                        htmlspecialchars($value),
                         htmlspecialchars($value)
                     );
                 })
