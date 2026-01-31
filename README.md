@@ -21,11 +21,15 @@ composer install
 yarn install
 ```
 
-## 🔧 Configuración
-Crea el archivo `.env.local`:
+## 🔧 Configuración por unica vez
+Crea el archivo `.env.local` y colocar:
 ```
-DATABASE_URL=mysql://demo:demo@mariadb:3306/historialclinico
+DATABASE_URL=mysql://demo:demo@mariadb:3306/admincontable
+```
+Correr migraciones: php bin/console doctrine:migrations:migrate -n -q
 ```
 
+Correr yarn cada vez que se requiera correr los asset: yarn watch
+```
 ## 🌐 Acceso
 - **URL local**: http://localhost:18000/login
